@@ -38,3 +38,7 @@ Antes de comenzar, asegúrate de tener instalados y configurados los siguientes 
    ```bash
    git config --global user.name "Tu Nombre"
    git config --global user.email "tuemail@example.com"
+
+## **Requisitos previos**
+1. **Crear un nuevo proyecto de pruebas**
+   Ejecuta el siguiente comando para crear un proyecto de pruebas con xUnit:
