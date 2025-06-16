@@ -1,81 +1,71 @@
-# 🧪 Plantilla xUnit + Playwright para .NET
+# 🧪 Proyecto de Pruebas Automatizadas con xUnit + Playwright (.NET)
 
-Este repositorio es una plantilla base para crear proyectos de pruebas automáticas usando **xUnit** y **Playwright** en .NET. Puedes clonarla, usarla como plantilla en GitHub o crear un proyecto desde cero con los mismos pasos.
+Esta guía explica cómo crear un proyecto de automatización desde cero utilizando [xUnit](https://xunit.net/) como framework de pruebas y [Playwright para .NET](https://playwright.dev/dotnet/) como motor de automatización de navegadores.
 
 ---
 
 ## ✅ Requisitos Previos
 
-Para usar esta plantilla necesitas tener los siguientes componentes instalados **y correctamente configurados en las variables de entorno**.
-
----
+Antes de comenzar, asegúrate de tener instalados y configurados correctamente los siguientes componentes:
 
 ### 1. [.NET SDK 6.0 o superior](https://dotnet.microsoft.com/download)
 
-- Verifica que esté instalado ejecutando:
-  ```bash
-  dotnet --version
-  ```
+Verifica la instalación:
+```bash
+dotnet --version
+```
 
-- Asegúrate de que el SDK esté en el `PATH`:
+Asegúrate de que `dotnet` esté en tu variable de entorno `PATH`.
 
-  #### ➤ Windows:
-  Agrega esta ruta en las variables de entorno del sistema:
-  ```
-  C:\Program Files\dotnet\
-  ```
 ---
 
 ### 2. [PowerShell Core (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
 
-Playwright usa PowerShell para instalar los navegadores, por lo que `pwsh` debe estar disponible.
+Playwright requiere PowerShell para instalar los navegadores.
 
-- Verifica la instalación:
-  ```bash
-  pwsh --version
-  ```
+Verifica la instalación:
+```bash
+pwsh --version
+```
 
-- Asegúrate de que esté en el `PATH`:
-
-  #### ➤ Windows:
-  Normalmente se encuentra en:
-  ```
-  C:\Program Files\PowerShell\7\
-  ```
----
-> ⚠️ Si no tienes `dotnet` o `pwsh` correctamente configurados en el `PATH`, es probable que encuentres errores al ejecutar los comandos.
+Asegúrate de que `pwsh` esté en tu variable de entorno `PATH`.
 
 ---
 
-## 🚀 Cómo usar esta plantilla
+## 🛠️ Crear Proyecto de Pruebas con xUnit y Playwright
 
-### Opción 1: Usar como plantilla en GitHub
-
-1. Haz clic en `Use this template` en la parte superior del repositorio.
-2. Clona tu nuevo repositorio:
-   ```bash
-   git clone https://github.com/tu-usuario/tu-repo.git
-   cd tu-repo
-   ```
-
----
-
-### Opción 2: Crear el proyecto manualmente desde cero
+### 1. Crear solución y proyecto xUnit
 
 ```bash
 dotnet new sln -n PlaywrightTests
 dotnet new xunit -n MyTests
 dotnet sln add MyTests/MyTests.csproj
-cd MyTests
-dotnet add package Microsoft.Playwright
-playwright install
 ```
 
 ---
 
-## 📄 Ejemplo de prueba básica
+### 2. Añadir Playwright al proyecto
 
-Archivo: `MyTests/Tests.cs`
+```bash
+cd MyTests
+dotnet add package Microsoft.Playwright
+```
+
+---
+
+### 3. Instalar navegadores con Playwright
+
+```bash
+playwright install
+```
+
+> ⚠️ Este comando ejecuta internamente un script de PowerShell. Asegúrate de tener `pwsh` disponible o el comando fallará.
+
+---
+
+## 🧪 Crear una prueba de ejemplo
+
+Crea un archivo `Tests.cs` dentro del proyecto `MyTests/` con el siguiente contenido:
 
 ```csharp
 using Microsoft.Playwright;
@@ -100,9 +90,9 @@ public class ExampleTests
 
 ---
 
-## ▶️ Ejecutar pruebas
+## ▶️ Ejecutar las pruebas
 
-Desde la raíz del proyecto:
+Desde la raíz del proyecto (donde esté la solución `.sln`):
 
 ```bash
 dotnet test
@@ -110,24 +100,23 @@ dotnet test
 
 ---
 
-## 📦 Estructura del proyecto
+## 📁 Estructura del Proyecto
 
 ```bash
-MyPlaywrightXunitTemplate/
+PlaywrightTests/
 ├── MyTests/
-│   ├── Tests.cs
 │   ├── MyTests.csproj
-├── .gitignore
-├── README.md
+│   ├── Tests.cs
 ├── PlaywrightTests.sln
+├── README.md
 ```
 
 ---
 
 ## 📌 Notas
 
-- Puedes modificar la prueba base para adaptarla a tus necesidades.
-- También puedes integrar otros frameworks como NUnit o MSTest si lo deseas.
-- Esta plantilla usa Chromium en modo headless por defecto.
+- Playwright soporta múltiples navegadores: Chromium, Firefox y WebKit. Puedes cambiar `playwright.Chromium` por `playwright.Firefox` o `playwright.Webkit`.
+- Puedes configurar el navegador para modo visible (`Headless = false`) durante el desarrollo.
+- Puedes usar `dotnet watch test` para pruebas automáticas al guardar cambios.
 
 ---
