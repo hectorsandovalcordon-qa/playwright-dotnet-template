@@ -24,13 +24,6 @@ Para usar esta plantilla necesitas tener los siguientes componentes instalados *
   ```
   C:\Program Files\dotnet\
   ```
-
-  #### ➤ Linux/macOS:
-  Añade esta línea en tu archivo `.bashrc`, `.zshrc` o similar:
-  ```bash
-  export PATH=$PATH:/usr/share/dotnet
-  ```
-
 ---
 
 ### 2. [PowerShell Core (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
@@ -49,23 +42,7 @@ Playwright usa PowerShell para instalar los navegadores, por lo que `pwsh` debe 
   ```
   C:\Program Files\PowerShell\7\
   ```
-
-  #### ➤ Linux/macOS:
-  Añade en tu archivo `.bashrc`, `.zshrc`, etc.:
-  ```bash
-  export PATH=$PATH:/opt/microsoft/powershell/7
-  ```
-
 ---
-
-### 3. Acceso a Internet
-
-Requerido para que `playwright install` pueda descargar los navegadores:
-
-```bash
-playwright install
-```
-
 > ⚠️ Si no tienes `dotnet` o `pwsh` correctamente configurados en el `PATH`, es probable que encuentres errores al ejecutar los comandos.
 
 ---
