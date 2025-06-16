@@ -11,8 +11,6 @@ Asegúrate de tener instalado y configurado en el `PATH`:
 - [.NET SDK 6.0+](https://dotnet.microsoft.com/download) → `dotnet --version`
 - [PowerShell Core (`pwsh`)](https://learn.microsoft.com/powershell/) → `pwsh --version`
 
-También necesitas conexión a internet para instalar los navegadores de Playwright.
-
 ---
 
 ## 🛠️ Crear el Proyecto
