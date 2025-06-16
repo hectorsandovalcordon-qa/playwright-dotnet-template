@@ -1,75 +1,54 @@
 # 🧪 Proyecto de Pruebas Automatizadas con xUnit + Playwright (.NET)
 
-Esta guía explica cómo crear un proyecto de automatización desde cero utilizando [xUnit](https://xunit.net/) como framework de pruebas y [Playwright para .NET](https://playwright.dev/dotnet/) como motor de automatización de navegadores.
+Guía rápida para configurar un entorno de pruebas en .NET usando xUnit y Playwright.
 
 ---
 
 ## ✅ Requisitos Previos
 
-Antes de comenzar, asegúrate de tener instalados y configurados correctamente los siguientes componentes:
+Asegúrate de tener instalado y configurado en el `PATH`:
 
-### 1. [.NET SDK 6.0 o superior](https://dotnet.microsoft.com/download)
+- [.NET SDK 6.0+](https://dotnet.microsoft.com/download) → `dotnet --version`
+- [PowerShell Core (`pwsh`)](https://learn.microsoft.com/powershell/) → `pwsh --version`
 
-Verifica la instalación:
-```bash
-dotnet --version
-```
-
-Asegúrate de que `dotnet` esté en tu variable de entorno `PATH`.
+También necesitas conexión a internet para instalar los navegadores de Playwright.
 
 ---
 
-### 2. [PowerShell Core (`pwsh`)](https://learn.microsoft.com/powershell/scripting/install/installing-powershell)
-
-Playwright requiere PowerShell para instalar los navegadores.
-
-Verifica la instalación:
-```bash
-pwsh --version
-```
-
-Asegúrate de que `pwsh` esté en tu variable de entorno `PATH`.
-
----
-
-## 🛠️ Crear Proyecto de Pruebas con xUnit y Playwright
-
-### 1. Crear solución y proyecto xUnit
+## 🛠️ Crear el Proyecto
 
 ```bash
-dotnet new sln -n PlaywrightTests
+# Crear proyecto y solución
 dotnet new xunit -n MyTests
+dotnet new sln -n PlaywrightTests
 dotnet sln add MyTests/MyTests.csproj
-```
 
----
-
-### 2. Añadir Playwright al proyecto
-
-```bash
+# Añadir Playwright
 cd MyTests
 dotnet add package Microsoft.Playwright
 ```
 
 ---
 
-### 3. Instalar navegadores con Playwright
+## 🌐 Instalar Navegadores
+
+Antes de instalar, **compila el proyecto** para generar el script `playwright.ps1`:
 
 ```bash
-playwright install
+dotnet build
+pwsh bin/Debug/net6.0/playwright.ps1 install
 ```
 
-> ⚠️ Este comando ejecuta internamente un script de PowerShell. Asegúrate de tener `pwsh` disponible o el comando fallará.
+> Reemplaza `net6.0` según tu versión de .NET.
 
 ---
 
-## 🧪 Crear una prueba de ejemplo
+## 🧪 Prueba de Ejemplo
 
-Crea un archivo `Tests.cs` dentro del proyecto `MyTests/` con el siguiente contenido:
+Archivo: `MyTests/Tests.cs`
 
 ```csharp
 using Microsoft.Playwright;
-using System.Threading.Tasks;
 using Xunit;
 
 public class ExampleTests
@@ -90,9 +69,7 @@ public class ExampleTests
 
 ---
 
-## ▶️ Ejecutar las pruebas
-
-Desde la raíz del proyecto (donde esté la solución `.sln`):
+## ▶️ Ejecutar Pruebas
 
 ```bash
 dotnet test
@@ -100,23 +77,22 @@ dotnet test
 
 ---
 
-## 📁 Estructura del Proyecto
+## 📁 Estructura
 
 ```bash
 PlaywrightTests/
 ├── MyTests/
-│   ├── MyTests.csproj
 │   ├── Tests.cs
+│   ├── MyTests.csproj
 ├── PlaywrightTests.sln
-├── README.md
 ```
 
 ---
 
-## 📌 Notas
+## 📝 Notas
 
-- Playwright soporta múltiples navegadores: Chromium, Firefox y WebKit. Puedes cambiar `playwright.Chromium` por `playwright.Firefox` o `playwright.Webkit`.
-- Puedes configurar el navegador para modo visible (`Headless = false`) durante el desarrollo.
-- Puedes usar `dotnet watch test` para pruebas automáticas al guardar cambios.
+- Usa `Chromium`, `Firefox` o `Webkit` según tus necesidades.
+- Activa modo visible con `Headless = false`.
+- Ejecuta pruebas en caliente con `dotnet watch test`.
 
 ---
