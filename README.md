@@ -77,18 +77,6 @@ dotnet test
 
 ---
 
-## 📁 Estructura
-
-```bash
-PlaywrightTests/
-├── MyTests/
-│   ├── Tests.cs
-│   ├── MyTests.csproj
-├── PlaywrightTests.sln
-```
-
----
-
 ## 📝 Notas
 
 - Usa `Chromium`, `Firefox` o `Webkit` según tus necesidades.
