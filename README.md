@@ -1,83 +1,85 @@
-# 🧪 Proyecto de Pruebas Automatizadas con xUnit + Playwright (.NET)
+# 🎯 Playwright xUnit Template
 
-Guía rápida para configurar un entorno de pruebas en .NET usando xUnit y Playwright.
-
----
-
-## ✅ Requisitos Previos
-
-Asegúrate de tener instalado y configurado en el `PATH`:
-
-- [.NET SDK 6.0+](https://dotnet.microsoft.com/download) → `dotnet --version`
-- [PowerShell Core (`pwsh`)](https://learn.microsoft.com/powershell/) → `pwsh --version`
+Plantilla reutilizable de pruebas automatizadas con:
+- [x] Playwright para testing E2E
+- [x] xUnit como framework de pruebas
+- [x] Page Object Model (POM)
+- [x] Fixtures compartidos
+- [x] Paralelismo
+- [x] Métricas automáticas por test
+- [x] Integración continua (CI) vía YAML
 
 ---
 
-## 🛠️ Crear el Proyecto
+## 🧪 Clonar el repositorio
 
 ```bash
-# Crear proyecto y solución
-dotnet new xunit -n MyTests
-dotnet new sln -n PlaywrightTests
-dotnet sln add MyTests/MyTests.csproj
-
-# Añadir Playwright
-cd MyTests
-dotnet add package Microsoft.Playwright
+git clone https://github.com/<TU-USUARIO>/<NOMBRE-DEL-REPO>.git
+cd <NOMBRE-DEL-REPO>
 ```
 
 ---
 
-## 🌐 Instalar Navegadores
-
-Antes de instalar, **compila el proyecto** para generar el script `playwright.ps1`:
+## 📦 Instalar la plantilla localmente
 
 ```bash
-dotnet build
-pwsh bin/Debug/net6.0/playwright.ps1 install
+dotnet new install .
 ```
 
-> Reemplaza `net6.0` según tu versión de .NET.
+> Esto registra la plantilla en tu sistema usando el archivo `.template.config/template.json`.
 
 ---
 
-## 🧪 Prueba de Ejemplo
+## 🚀 Crear un nuevo proyecto basado en la plantilla
 
-Archivo: `MyTests/Tests.cs`
-
-```csharp
-using Microsoft.Playwright;
-using Xunit;
-
-public class ExampleTests
-{
-    [Fact]
-    public async Task OpenGoogleTest()
-    {
-        using var playwright = await Playwright.CreateAsync();
-        var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
-        var page = await browser.NewPageAsync();
-        await page.GotoAsync("https://www.google.com");
-        var title = await page.TitleAsync();
-        Assert.Contains("Google", title);
-        await browser.CloseAsync();
-    }
-}
+```bash
+dotnet new playwright-xunit -n MiProyectoDeTests
+cd MiProyectoDeTests
 ```
 
 ---
 
-## ▶️ Ejecutar Pruebas
+## 🧬 Estructura generada
+
+```plaintext
+MiProyectoDeTests/
+├── MiProyectoDeTests.sln
+├── MiProyectoDeTests/
+│   ├── MiProyectoDeTests.csproj
+│   ├── Tests/
+│   ├── Pages/
+│   ├── Fixtures/
+│   └── Utils/
+```
+
+---
+
+## ▶️ Ejecutar los tests por línea de comandos
 
 ```bash
 dotnet test
 ```
----
-
-## 📝 Notas
-
-- Usa `Chromium`, `Firefox` o `Webkit` según tus necesidades.
-- Activa modo visible con `Headless = false`.
-- Ejecuta pruebas en caliente con `dotnet watch test`.
 
 ---
+
+## 🐛 Ejecutar un test individual (modo debug en VS Code)
+
+1. Abre el archivo del test.
+2. Añade un breakpoint.
+3. Usa la paleta de comandos `Ctrl+Shift+P` → `Debug Test`.
+4. O configura en `launch.json` un perfil para `xUnit`.
+
+---
+
+## 🧹 Desinstalar la plantilla (opcional)
+
+```bash
+dotnet new uninstall Playwright.Template.CSharp
+```
+
+---
+
+## 📌 Autor
+
+Creado por **Héctor Sandoval**  
+📎 Proyecto orientado a facilitar el desarrollo de pruebas E2E reutilizables y mantenibles.
