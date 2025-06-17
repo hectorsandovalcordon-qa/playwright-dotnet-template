@@ -1,11 +1,10 @@
 using PlaywrightTests.Tests;
-using PlaywrightTests.Infrastructure;
 
 public class LoginTests : BaseTest
 {
     public LoginTests() { }
 
-    [Fact, ScreenshotOnFailure]
+    [Fact]
     public async Task Login_ShouldFailAndTakeScreenshot()
     {
         await _page.GotoAsync($"{_baseUrl}/login");
