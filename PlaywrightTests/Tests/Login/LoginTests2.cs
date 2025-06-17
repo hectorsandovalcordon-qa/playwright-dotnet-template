@@ -1,3 +1,4 @@
+[MetricsTest]
 [Collection("Playwright collection")]
 public class LoginTests2(PlaywrightFixture fixture) : BaseTest(fixture)
 {
