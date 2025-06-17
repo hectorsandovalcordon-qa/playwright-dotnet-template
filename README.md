@@ -58,7 +58,7 @@ dotnet test
 
 Se incluye un ejemplo de workflow para GitHub Actions que ejecuta los tests en cada pull request a las ramas `dev` o `main`.
 
-Archivo: `.github/workflows/playwright-tests.yml`
+Archivo: `.github/workflows/ci.yml`
 
 ---
 
