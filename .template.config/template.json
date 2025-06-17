@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Héctor Sandoval",
+  "classifications": [ "Test", "Playwright", "xUnit" ],
+  "identity": "Playwright.Template.CSharp",
+  "name": "Playwright xUnit Template",
+  "shortName": "playwright-xunit",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "Tests"
+}
