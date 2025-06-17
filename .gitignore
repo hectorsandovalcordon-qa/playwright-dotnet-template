@@ -5,3 +5,7 @@
 # Build directories
 bin/
 obj/
+
+# TestResults
+TestResults/
+

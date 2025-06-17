@@ -1,10 +1,8 @@
 using Microsoft.Playwright;
 
-public abstract class BasePage
+public abstract class BasePage(IPage page)
 {
-    protected readonly IPage Page;
-
-    protected BasePage(IPage page) => Page = page;
+    protected readonly IPage Page = page;
 
     public async Task ClickAsync(string selector) =>
         await Page.SafeClickAsync(selector);

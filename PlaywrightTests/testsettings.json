@@ -5,8 +5,8 @@
   "Browser": "chromium",
   "Environments": {
     "qa": "https://www.saucedemo.com/",
-    "staging": "https://staging.example.com",
-    "prod": "https://example.com"
+    "staging": "",
+    "prod": ""
   },
   "DefaultEnvironment": "qa"
 }
