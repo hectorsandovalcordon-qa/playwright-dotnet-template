@@ -1,61 +1,73 @@
-# Playwright .NET Template con xUnit
-Plantilla base para proyectos de automatización de tests usando Playwright, .NET, xUnit y Page Object Model. Incluye integración con métricas de tests, paralelismo, fixtures, y CI con GitHub Actions.
+# Plantilla Playwright xUnit para .NET
+
+Esta plantilla te permite crear proyectos de automatización de tests usando Playwright y xUnit con una estructura robusta, métricas, paralelismo y configuración para integración continua.
+
 ---
-## Contenido
-- Estructura sólida basada en **Page Object Model (POM)**
-- Uso de **xUnit** para pruebas con soporte a **fixtures** y paralelismo
-- Métricas de ejecución de tests (duración, resultado, categoría)
-- Pipeline de Integración Continua con GitHub Actions (YAML incluido)
-- Ejemplo básico de tests para login y navegación
-- Configuración para facilitar escalabilidad y mantenimiento
----
-## Cómo empezar
-### Clonar el repositorio
+
+## Cómo usar esta plantilla
+
+### 1. Clonar el repositorio de la plantilla
+
 ```bash
 git clone https://github.com/hectorsandovalcordon-qa/playwright-dotnet-template.git
 cd playwright-dotnet-template
 ```
-### Ejecutar los tests desde línea de comandos
+
+### 2. Instalar la plantilla localmente
+
+Desde la raíz del repositorio clonado, ejecuta:
+
+```bash
+dotnet new -i .
+```
+
+Esto instalará la plantilla en tu máquina local.
+
+### 3. Crear un nuevo proyecto usando la plantilla
+
+En la carpeta donde quieras crear tu nuevo proyecto, ejecuta:
+
+```bash
+dotnet new playwright-xunit -n MiProyectoTests
+cd MiProyectoTests
+```
+
+Esto generará un nuevo proyecto basado en la plantilla.
+
+### 4. Ejecutar los tests
+
+Dentro de la carpeta del proyecto generado, ejecuta:
+
 ```bash
 dotnet test
 ```
-O con configuración específica:
-```bash
-dotnet test --logger "trx" --results-directory ./TestResults
-```
-### Estructura del proyecto
-- `/Tests` - Código de tests con xUnit  
-- `/PageObjects` - Modelos de página siguiendo POM  
-- `/Fixtures` - Configuraciones comunes para tests  
-- `/Infraestructure` - Código para métricas, logs, helpers  
-- `/playwright.config.ts` - Configuración Playwright  
+
 ---
+
+## Estructura del proyecto generado
+
+- `/PageObjects`: modelos de página siguiendo el patrón Page Object Model  
+- `/Tests`: pruebas automatizadas con xUnit  
+- `/Fixtures`: configuraciones y datos compartidos para tests  
+- `/Infraestructure`: utilidades como logging y métricas  
+- `/Metrics`: archivo JSON donde se almacenan métricas de ejecución  
+
+---
+
 ## Integración Continua
-Se incluye un workflow de GitHub Actions para ejecutar tests automáticamente en PRs hacia `dev` y `main`. Puedes encontrar el archivo en:
-```yaml
-.github/workflows/playwright-tests.yml
-```
+
+Se incluye un ejemplo de workflow para GitHub Actions que ejecuta los tests en cada pull request a las ramas `dev` o `main`.
+
+Archivo: `.github/workflows/playwright-tests.yml`
+
 ---
-## Métricas de Tests
-Cada test registra métricas de ejecución (tiempo, resultado, categoría) que se almacenan en:
-```json
-Metrics/metrics.json
-```
----
-## Personalización
-- Añade nuevos fixtures para compartir estado  
-- Crea nuevos page objects para tus nuevas páginas  
-- Extiende la métrica con nuevos campos si es necesario  
-- Modifica el workflow para agregar notificaciones, reportes, etc.  
----
-## Futuras mejoras
-- Integración con reportes HTML (ejemplo con ReportPortal o Allure)  
-- Captura automática de screenshots en fallos  
-- Tests parametrizados con datos externos  
----
+
 ## Contacto
-Creador: Héctor Sandoval  
+
+Héctor Sandoval  
 Repositorio: https://github.com/hectorsandovalcordon-qa/playwright-dotnet-template  
 LinkedIn: https://www.linkedin.com/in/hectorsandovalcordon  
+
 ---
-¡Gracias por usar esta plantilla! Si quieres aportar mejoras, abre un pull request o issue.
+
+¡Disfruta automatizando con esta plantilla! Si tienes dudas o sugerencias, abre un issue o PR en el repositorio.
