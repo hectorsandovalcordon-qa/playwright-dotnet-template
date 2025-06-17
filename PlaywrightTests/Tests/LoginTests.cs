@@ -2,8 +2,6 @@ using PlaywrightTests.Tests;
 
 public class LoginTests : BaseTest
 {
-    public LoginTests() { }
-
     [Fact]
     public async Task Login_ShouldFailAndTakeScreenshot()
     {
