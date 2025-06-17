@@ -1,50 +1,45 @@
-name: .NET Playwright Tests
+name: .NET E2E Tests
 
 on:
-  push:
-    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - dev
+      - main
 
 jobs:
-  test:
+  playwright-tests:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      # Paso 1: Checkout del código fuente
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '9.0.x'
+      # Paso 2: Configurar .NET 6 SDK
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0'
 
-    - name: Setup Node.js (for Playwright browsers)
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      # Paso 3: Restaurar dependencias del proyecto especificado
+      - name: Restore dependencies
+        run: dotnet restore ./SpecFlowPlaywrightProject/SpecFlowPlaywright/SpecFlowPlaywright.csproj --configfile ./SpecFlowPlaywrightProject/NuGet.Config
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      # Paso 4: Compilar el proyecto en modo Release
+      - name: Build project
+        run: dotnet build ./SpecFlowPlaywrightProject/SpecFlowPlaywright/SpecFlowPlaywright.csproj --configuration Release
 
-    - name: Restore .NET dependencies
-      run: dotnet restore
+      # Paso 5: Instalar navegadores de Playwright usando PowerShell
+      - name: Install Playwright Browsers (auto-detect path)
+        shell: pwsh
+        run: |
+          $pwScript = Get-ChildItem -Path ./SpecFlowPlaywrightProject/SpecFlowPlaywright/bin -Recurse -Filter "playwright.ps1" | Select-Object -First 1
+          if (-not $pwScript) {
+            Write-Error "No se encontró el archivo playwright.ps1"
+            exit 1
+          }
+          & $pwScript.FullName install
 
-    - name: Build solution
-      run: dotnet build --no-restore --configuration Release
-
-    - name: Run tests
-      run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
-
-    - name: Upload test results
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: '**/TestResults/*.trx'
-
-    - name: Upload screenshots if exist
-      if: failure()
-      uses: actions/upload-artifact@v3
-      with:
-        name: screenshots
-        path: screenshots/**/*.png
+      # Paso 6: Ejecutar los tests SpecFlow (sin rebuild)
+      - name: Run SpecFlow Tests
+        run: dotnet test ./SpecFlowPlaywrightProject/SpecFlowPlaywright/SpecFlowPlaywright.csproj --configuration Release --no-build --logger "trx"
