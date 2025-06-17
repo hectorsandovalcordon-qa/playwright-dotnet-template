@@ -1,0 +1,12 @@
+{
+  "BaseUrl": "https://example.com",
+  "Headless": true,
+  "SlowMo": 0,
+  "Browser": "chromium",
+  "Environments": {
+    "qa": "https://www.saucedemo.com/",
+    "staging": "https://staging.example.com",
+    "prod": "https://example.com"
+  },
+  "DefaultEnvironment": "qa"
+}

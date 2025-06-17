@@ -1,0 +1,50 @@
+name: .NET Playwright Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Setup Node.js (for Playwright browsers)
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Restore .NET dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: '**/TestResults/*.trx'
+
+    - name: Upload screenshots if exist
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: screenshots
+        path: screenshots/**/*.png
