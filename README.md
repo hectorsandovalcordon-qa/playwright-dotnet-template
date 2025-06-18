@@ -44,21 +44,40 @@ dotnet test
 
 ---
 
-## Estructura del proyecto generado
+## Estructura del proyecto
 
-- `/PageObjects`: modelos de página siguiendo el patrón Page Object Model  
-- `/Tests`: pruebas automatizadas con xUnit  
-- `/Fixtures`: configuraciones y datos compartidos para tests  
-- `/Infraestructure`: utilidades como logging y métricas  
-- `/Metrics`: archivo JSON donde se almacenan métricas de ejecución  
+- `.vscode/`  
+  Configuraciones específicas para Visual Studio Code (opcional).
+
+- `/Infrastructure/`  
+  Utilidades para logging, métricas y otras herramientas de soporte.
+
+- `/Pages/`  
+  Modelos de página siguiendo el patrón Page Object Model.
+
+- `/Properties/`  
+  Archivos de configuración y metadatos del proyecto.
+
+- `/Tests/`  
+  Tests automatizados con xUnit.
+
+- `/Utils/`  
+  Utilidades y helpers varios para el proyecto.
 
 ---
 
 ## Integración Continua
 
-Se incluye un ejemplo de workflow para GitHub Actions que ejecuta los tests en cada pull request a las ramas `dev` o `main`.
+Se incluye un ejemplo de workflow para GitHub Actions (`.github/workflows/ci.yml`) que ejecuta los tests en cada pull request a las ramas `dev` o `main`.
 
-Archivo: `.github/workflows/ci.yml`
+Además, existe un template para rellenar en cada pull request que ayuda a describir los cambios realizados y asegurar la calidad del código.
+
+**Checklist para PRs:**  
+- Ejecutar y pasar todos los tests locales  
+- No dejar warnings ni errores en el build  
+- Actualizar documentación si aplica  
+- Seguir estándares y buenas prácticas  
+- Asegurar que el PR pase todos los checks de CI
 
 ---
 
