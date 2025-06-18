@@ -1,10 +1,10 @@
 name: Playwright Tests
 
 on:
-  push:
-    branches: [dev]
   pull_request:
-    branches: [main]
+    branches: 
+      - dev
+      - main
 
 jobs:
   playwright-tests:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.0'
+          dotnet-version: '9.0'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -25,19 +25,15 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-
-      - name: Run tests
-        run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test_results.trx"
-
-      - name: Collect Allure results
+      - name: Install Playwright Browsers (auto-detect path)
+        shell: pwsh
         run: |
-          mkdir -p allure-results
-          cp -r PlaywrightTests/bin/Release/net8.0/allure-results/* allure-results/
+            $pwScript = Get-ChildItem -Path ./PlaywrightTests/bin -Recurse -Filter "playwright.ps1" | Select-Object -First 1
+            if (-not $pwScript) {
+              Write-Error "No se encontró el archivo playwright.ps1"
+              exit 1
+            }
+            & $pwScript.FullName install
 
-      - name: Upload Allure results
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results
-          path: allure-results
+      - name: Run SpecFlow Tests
+        run: dotnet test ./PlaywrightTests/PlaywrightTests.csproj --configuration Release --no-build --logger "trx"
