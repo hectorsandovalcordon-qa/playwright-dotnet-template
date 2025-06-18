@@ -1,7 +1,6 @@
 using Allure.Xunit.Attributes;
 using Allure.Net.Commons;
 
-[MetricsTest]
 [Collection("Playwright collection")]
 [AllureSuite("Login Tests")]
 [AllureFeature("Login Feature")]
