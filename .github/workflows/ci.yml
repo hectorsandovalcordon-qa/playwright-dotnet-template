@@ -2,9 +2,9 @@ name: Playwright Tests
 
 on:
   push:
-    branches: [dev]  # Solo ejecuta si haces push a dev
+    branches: [dev]
   pull_request:
-    branches: [main]  # Se ejecuta si alguien abre PR hacia main
+    branches: [main]
 
 jobs:
   playwright-tests:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'  # Asegúrate de usar tu versión exacta
+          dotnet-version: '9.0.0'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -34,7 +34,7 @@ jobs:
       - name: Collect Allure results
         run: |
           mkdir -p allure-results
-          cp -r tests/YourTestProject/bin/Release/net8.0/allure-results/* allure-results/
+          cp -r PlaywrightTests/bin/Release/net8.0/allure-results/* allure-results/
 
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
