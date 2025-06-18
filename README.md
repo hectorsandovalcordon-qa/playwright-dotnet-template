@@ -44,8 +44,6 @@ dotnet test
 
 ---
 
-## Estructura del proyecto generado
-
 ## Estructura del proyecto
 
 - `.vscode/`  
