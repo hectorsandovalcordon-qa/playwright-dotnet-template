@@ -4,7 +4,7 @@ public class LoginPage(
     string usernameSelector = "#user-name",
     string passwordSelector = "#password",
     string submitSelector = "#login-button",
-    string logoutSelector = "#logout",
+    string verifyLoginIcon = "#react-burger-menu-btn",
     string passwordResetPath = "/password-reset",
     string emailSelector = "#email",
     string resetSubmitSelector = "#reset-submit",
@@ -17,7 +17,7 @@ public class LoginPage(
     private readonly string _usernameSelector = usernameSelector;
     private readonly string _passwordSelector = passwordSelector;
     private readonly string _submitSelector = submitSelector;
-    private readonly string _logoutSelector = logoutSelector;
+    private readonly string _verifyLoginIcon = verifyLoginIcon;
     private readonly string _passwordResetPath = passwordResetPath;
     private readonly string _emailSelector = emailSelector;
     private readonly string _resetSubmitSelector = resetSubmitSelector;
@@ -34,7 +34,7 @@ public class LoginPage(
     }
 
     public async Task<bool> IsLoggedInAsync() =>
-        await IsVisibleAsync(_logoutSelector);
+        await IsVisibleAsync(_verifyLoginIcon);
 
     public async Task NavigateToPasswordResetPageAsync() =>
         await NavigateToRelativeAsync(_baseUrl, _passwordResetPath);
