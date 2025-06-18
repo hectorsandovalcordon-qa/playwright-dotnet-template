@@ -1,9 +1,9 @@
-public class LoginPage : BasePage
+public class LoginPage(IPage page, string baseUrl) : BasePage(page)
 {
-    public LoginPage(IPage page) : base(page) { }
+    private readonly string _baseUrl = baseUrl;
 
     public async Task NavigateAsync() =>
-        await NavigateAsync("https://tuapp.com/login");
+        await NavigateAsync($"{_baseUrl}/login");
 
     public async Task LoginAsync(string username, string password)
     {
@@ -14,4 +14,14 @@ public class LoginPage : BasePage
 
     public async Task<bool> IsLoggedInAsync() =>
         await IsVisibleAsync("#logout");
+
+    public async Task NavigateToPasswordResetPageAsync() =>
+        await NavigateToRelativeAsync(_baseUrl, "/password-reset");
+
+    public async Task ResetPasswordAsync(string email)
+    {
+        await FillAsync("#email", email);
+        await ClickAsync("#reset-submit");
+        await Page.WaitForSelectorAsync("text=Password reset email sent");
+    }
 }

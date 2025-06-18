@@ -45,4 +45,14 @@ public abstract class BasePage(IPage page)
         if (!actualUrl.Equals(expectedUrl, System.StringComparison.OrdinalIgnoreCase))
             throw new Exception($"URL actual: {actualUrl}, esperada: {expectedUrl}");
     }
+
+    public async Task<bool> IsErrorMessageVisibleAsync(string message)
+    {
+        var locator = Page.Locator($"text={message}");
+        return await locator.IsVisibleAsync();
+    }
+
+    public async Task NavigateToRelativeAsync(string baseUrl, string relativePath) =>
+        await NavigateAsync($"{baseUrl.TrimEnd('/')}/{relativePath.TrimStart('/')}");
+
 }
