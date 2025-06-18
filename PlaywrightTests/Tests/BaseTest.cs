@@ -1,5 +1,4 @@
 using Serilog;
-using Allure.Commons;
 
 public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
 {
@@ -8,8 +7,6 @@ public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
     protected IPage Page = null!;
     protected string BaseUrl = string.Empty;
     protected static readonly ILogger Log;
-
-    private static readonly AllureLifecycle Allure = AllureLifecycle.Instance;
 
     static BaseTest()
     {
