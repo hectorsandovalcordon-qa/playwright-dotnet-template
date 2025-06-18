@@ -46,11 +46,25 @@ dotnet test
 
 ## Estructura del proyecto generado
 
-- `/PageObjects`: modelos de página siguiendo el patrón Page Object Model  
-- `/Tests`: pruebas automatizadas con xUnit  
-- `/Fixtures`: configuraciones y datos compartidos para tests  
-- `/Infraestructure`: utilidades como logging y métricas  
-- `/Metrics`: archivo JSON donde se almacenan métricas de ejecución  
+## Estructura del proyecto
+
+- `.vscode/`  
+  Configuraciones específicas para Visual Studio Code (opcional).
+
+- `/Infrastructure/`  
+  Utilidades para logging, métricas y otras herramientas de soporte.
+
+- `/Pages/`  
+  Modelos de página siguiendo el patrón Page Object Model.
+
+- `/Properties/`  
+  Archivos de configuración y metadatos del proyecto.
+
+- `/Tests/`  
+  Tests automatizados con xUnit.
+
+- `/Utils/`  
+  Utilidades y helpers varios para el proyecto.
 
 ---
 
