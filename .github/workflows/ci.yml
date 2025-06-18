@@ -28,7 +28,7 @@ jobs:
       - name: Install Playwright Browsers (auto-detect path)
         shell: pwsh
         run: |
-            $pwScript = Get-ChildItem -Path ./SpecFlowPlaywrightProject/SpecFlowPlaywright/bin -Recurse -Filter "playwright.ps1" | Select-Object -First 1
+            $pwScript = Get-ChildItem -Path ./PlaywrightTests/bin -Recurse -Filter "playwright.ps1" | Select-Object -First 1
             if (-not $pwScript) {
               Write-Error "No se encontró el archivo playwright.ps1"
               exit 1
@@ -36,4 +36,4 @@ jobs:
             & $pwScript.FullName install
 
       - name: Run SpecFlow Tests
-        run: dotnet test ./SpecFlowPlaywrightProject/SpecFlowPlaywright/SpecFlowPlaywright.csproj --configuration Release --no-build --logger "trx"
+        run: dotnet test ./PlaywrightTests/PlaywrightTests.csproj --configuration Release --no-build --logger "trx"
