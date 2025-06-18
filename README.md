@@ -68,9 +68,9 @@ dotnet test
 
 ## Integración Continua
 
-Se incluye un ejemplo de workflow para GitHub Actions (`.github/workflows/ci.yml`) que ejecuta los tests en cada pull request a las ramas `dev` o `main`. También hay otros templates similares disponibles.
+Se incluye un ejemplo de workflow para GitHub Actions (`.github/workflows/ci.yml`) que ejecuta los tests en cada pull request a las ramas `dev` o `main`.
 
----
+Además, existe un template para rellenar en cada pull request que ayuda a describir los cambios realizados y asegurar la calidad del código.
 
 **Checklist para PRs:**  
 - Ejecutar y pasar todos los tests locales  
