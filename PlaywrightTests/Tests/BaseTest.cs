@@ -1,4 +1,5 @@
 using Serilog;
+using Allure.Commons;
 
 public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
 {
@@ -32,26 +33,49 @@ public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
     public async Task DisposeAsync()
     {
         Log.Information("Cerrando contexto del navegador");
-
         await Context.CloseAsync();
     }
 
     protected async Task ExecuteTestAsync(Func<Task> testBody, string testName)
     {
+        var screenshotDir = "Screenshots";
+        var logsDir = "Logs";
+        Directory.CreateDirectory(screenshotDir);
+        Directory.CreateDirectory(logsDir);
+
+        var screenshotPath = Path.Combine(screenshotDir, $"{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.png");
+        var logPath = Path.Combine(logsDir, $"{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.log");
+
         try
         {
             Log.Information("Iniciando test: {TestName}", testName);
+
             await testBody();
+
             Log.Information("Test {TestName} completado exitosamente", testName);
+
+            // Opcional: Guarda un log sencillo indicando éxito
+            var successLog = $"Test {testName} completado exitosamente en {DateTime.Now:O}";
+            await File.WriteAllTextAsync(logPath, successLog);
+
+            // Adjuntar log de éxito a Allure (opcional)
+            AllureLifecycle.Instance.AddAttachment("Log de ejecución", "text/plain", logPath);
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Test {TestName} falló con excepción", testName);
 
-            var screenshotPath = $"Screenshots/{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.png";
+            // Captura screenshot
             await Page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotPath, FullPage = true });
-
             Log.Information("Screenshot guardado en {ScreenshotPath}", screenshotPath);
+
+            // Guarda log con detalles del error
+            var errorLogContent = $"Test {testName} falló en {DateTime.Now:O}\nExcepción:\n{ex}";
+            await File.WriteAllTextAsync(logPath, errorLogContent);
+
+            // Adjuntar ambos a Allure para que aparezcan en el reporte
+            AllureLifecycle.Instance.AddAttachment("Screenshot en fallo", "image/png", screenshotPath);
+            AllureLifecycle.Instance.AddAttachment("Log de error", "text/plain", logPath);
 
             throw;
         }
