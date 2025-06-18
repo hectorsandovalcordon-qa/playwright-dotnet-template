@@ -4,7 +4,7 @@ public class LoginPage(
     string usernameSelector = "#user-name",
     string passwordSelector = "#password",
     string submitSelector = "#login-button",
-    string verifyLoginIcon = "#react-burger-menu-btn",
+    string verifyLoginIcon = "#react-burger-menu-btn"
     ) : BasePage(page)
 {
     private readonly string _baseUrl = baseUrl;
