@@ -48,13 +48,12 @@ public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
         {
             Log.Error(ex, "Test {TestName} falló con excepción", testName);
 
-            // Captura screenshot
             var screenshotPath = $"Screenshots/{testName}_{DateTime.Now:yyyyMMdd_HHmmss}.png";
             await Page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotPath, FullPage = true });
 
-            Log.Error("Screenshot guardado en {ScreenshotPath}", screenshotPath);
+            Log.Information("Screenshot guardado en {ScreenshotPath}", screenshotPath);
 
-            throw; // Re-lanza para que xUnit registre el fallo
+            throw;
         }
     }
 }

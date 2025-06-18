@@ -2,7 +2,7 @@ using System.Text.Json;
 
 public static class MetricsLoggerHelper
 {
-    private static readonly object _lock = new object();
+    private static readonly Lock _lock = new();
     private static readonly string _metricsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Metrics");
     private static readonly string _metricsPath = Path.Combine(_metricsDirectory, "test_metrics.json");
 
@@ -25,7 +25,7 @@ public static class MetricsLoggerHelper
                 var existing = File.ReadAllText(_metricsPath);
                 if (!string.IsNullOrWhiteSpace(existing))
                 {
-                    list = JsonSerializer.Deserialize<List<TestMetrics>>(existing) ?? new List<TestMetrics>();
+                    list = JsonSerializer.Deserialize<List<TestMetrics>>(existing) ?? [];
                 }
             }
 
