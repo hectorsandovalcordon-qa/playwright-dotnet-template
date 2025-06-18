@@ -1,5 +1,3 @@
-using Microsoft.Playwright;
-
 public abstract class BasePage(IPage page)
 {
     protected readonly IPage Page = page;

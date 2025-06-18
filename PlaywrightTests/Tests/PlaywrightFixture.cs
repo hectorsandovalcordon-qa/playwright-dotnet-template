@@ -1,4 +1,3 @@
-using Microsoft.Playwright;
 using System.Text.Json;
 
 public class PlaywrightFixture : IAsyncLifetime

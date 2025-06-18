@@ -1,5 +1,3 @@
-using Microsoft.Playwright;
-
 public static class AssertHelper
 {
     public static async Task AssertUrlContainsAsync(IPage page, string fragment)

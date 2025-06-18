@@ -1,6 +1,3 @@
-using Microsoft.Playwright;
-using System.Threading.Tasks;
-
 namespace PlaywrightTests.Utils
 {
     public static class WaitHelper

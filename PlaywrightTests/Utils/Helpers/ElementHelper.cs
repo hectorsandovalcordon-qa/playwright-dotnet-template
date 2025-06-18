@@ -1,5 +1,3 @@
-using Microsoft.Playwright;
-
 public static class ElementHelper
 {
     public static async Task SafeClickAsync(this IPage page, string selector)

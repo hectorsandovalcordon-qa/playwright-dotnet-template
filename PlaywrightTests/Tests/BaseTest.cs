@@ -1,5 +1,3 @@
-using Microsoft.Playwright;
-
 public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
 {
     private readonly PlaywrightFixture _fixture = fixture;
