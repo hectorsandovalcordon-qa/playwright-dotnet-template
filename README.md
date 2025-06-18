@@ -1,60 +1,42 @@
-# 🎯 Playwright xUnit Template
+# Plantilla Playwright xUnit para .NET
 
-Plantilla reutilizable de pruebas automatizadas con:
-- [x] Playwright para testing E2E
-- [x] xUnit como framework de pruebas
-- [x] Page Object Model (POM)
-- [x] Fixtures compartidos
-- [x] Paralelismo
-- [x] Métricas automáticas por test
-- [x] Integración continua (CI) vía YAML
+Esta plantilla te permite crear proyectos de automatización de tests usando Playwright y xUnit con una estructura robusta, métricas, paralelismo y configuración para integración continua.
 
 ---
 
-## 🧪 Clonar el repositorio
+## Cómo usar esta plantilla
+
+### 1. Clonar el repositorio de la plantilla
 
 ```bash
-git clone https://github.com/<TU-USUARIO>/<NOMBRE-DEL-REPO>.git
-cd <NOMBRE-DEL-REPO>
+git clone https://github.com/hectorsandovalcordon-qa/playwright-dotnet-template.git
+cd playwright-dotnet-template
 ```
 
----
+### 2. Instalar la plantilla localmente
 
-## 📦 Instalar la plantilla localmente
+Desde la raíz del repositorio clonado, ejecuta:
 
 ```bash
-dotnet new install .
+dotnet new -i .
 ```
 
-> Esto registra la plantilla en tu sistema usando el archivo `.template.config/template.json`.
+Esto instalará la plantilla en tu máquina local.
 
----
+### 3. Crear un nuevo proyecto usando la plantilla
 
-## 🚀 Crear un nuevo proyecto basado en la plantilla
+En la carpeta donde quieras crear tu nuevo proyecto, ejecuta:
 
 ```bash
-dotnet new playwright-xunit -n MiProyectoDeTests
-cd MiProyectoDeTests
+dotnet new playwright-xunit -n MiProyectoTests
+cd MiProyectoTests
 ```
 
----
+Esto generará un nuevo proyecto basado en la plantilla.
 
-## 🧬 Estructura generada
+### 4. Ejecutar los tests
 
-```plaintext
-MiProyectoDeTests/
-├── MiProyectoDeTests.sln
-├── MiProyectoDeTests/
-│   ├── MiProyectoDeTests.csproj
-│   ├── Tests/
-│   ├── Pages/
-│   ├── Fixtures/
-│   └── Utils/
-```
-
----
-
-## ▶️ Ejecutar los tests por línea de comandos
+Dentro de la carpeta del proyecto generado, ejecuta:
 
 ```bash
 dotnet test
@@ -62,24 +44,30 @@ dotnet test
 
 ---
 
-## 🐛 Ejecutar un test individual (modo debug en VS Code)
+## Estructura del proyecto generado
 
-1. Abre el archivo del test.
-2. Añade un breakpoint.
-3. Usa la paleta de comandos `Ctrl+Shift+P` → `Debug Test`.
-4. O configura en `launch.json` un perfil para `xUnit`.
-
----
-
-## 🧹 Desinstalar la plantilla (opcional)
-
-```bash
-dotnet new uninstall Playwright.Template.CSharp
-```
+- `/PageObjects`: modelos de página siguiendo el patrón Page Object Model  
+- `/Tests`: pruebas automatizadas con xUnit  
+- `/Fixtures`: configuraciones y datos compartidos para tests  
+- `/Infraestructure`: utilidades como logging y métricas  
+- `/Metrics`: archivo JSON donde se almacenan métricas de ejecución  
 
 ---
 
-## 📌 Autor
+## Integración Continua
 
-Creado por **Héctor Sandoval**  
-📎 Proyecto orientado a facilitar el desarrollo de pruebas E2E reutilizables y mantenibles.
+Se incluye un ejemplo de workflow para GitHub Actions que ejecuta los tests en cada pull request a las ramas `dev` o `main`.
+
+Archivo: `.github/workflows/ci.yml`
+
+---
+
+## Contacto
+
+Héctor Sandoval  
+Repositorio: https://github.com/hectorsandovalcordon-qa/playwright-dotnet-template  
+LinkedIn: https://www.linkedin.com/in/hectorsandovalcordon  
+
+---
+
+¡Disfruta automatizando con esta plantilla! Si tienes dudas o sugerencias, abre un issue o PR en el repositorio.
