@@ -36,8 +36,26 @@ jobs:
           mkdir -p allure-results
           cp -r PlaywrightTests/bin/Release/net8.0/allure-results/* allure-results/
 
+      - name: Install Allure CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jdk
+          curl -o allure.zip -L "https://github.com/allure-framework/allure2/releases/latest/download/allure-2.22.1.zip"
+          unzip -o allure.zip -d $HOME/.allure
+          export PATH=$HOME/.allure/allure-2.22.1/bin:$PATH
+          echo "::add-path::$HOME/.allure/allure-2.22.1/bin"
+
+      - name: Generate Allure Report
+        run: allure generate allure-results --clean -o allure-report
+
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: allure-results
+
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
