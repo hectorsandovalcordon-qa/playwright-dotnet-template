@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # ⚙️ Configurar .NET SDK (versión 9.0)
+      # ⚙️ Configurar .NET SDK (versión 8.0)
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -43,6 +43,12 @@ jobs:
       # 🧪 Ejecutar los tests Playwright con salida detallada para diagnóstico
       - name: Run Playwright Tests
         run: dotnet test ./PlaywrightTests/PlaywrightTests.csproj --configuration Release --no-build --logger "console;verbosity=detailed"
+
+      # 🔄 Mover carpeta allure-results a la raíz para que el reporte se genere desde ahí
+      - name: Move Allure Results to fixed folder
+        run: |
+          mkdir -p allure-results
+          cp -r ./PlaywrightTests/bin/Release/net8.0/allure-results/* allure-results/
 
       # 🔧 Instalar la herramienta de línea de comandos de Allure globalmente con npm
       - name: Install Allure Commandline
@@ -77,4 +83,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: ./allure-report
-
