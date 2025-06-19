@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Playwright Tests with Allure
 
 on:
   pull_request:
@@ -11,29 +11,70 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 🔄 Clonar el repositorio para tener el código localmente
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # ⚙️ Configurar .NET SDK (versión 9.0)
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0'
 
+      # 📦 Restaurar las dependencias NuGet necesarias para el proyecto
       - name: Restore dependencies
         run: dotnet restore
 
+      # 🏗 Construir el proyecto sin restaurar (porque ya lo hicimos antes)
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Install Playwright Browsers (auto-detect path)
+      # 🌐 Instalar los navegadores que Playwright necesita para ejecutar los tests
+      - name: Install Playwright Browsers
         shell: pwsh
         run: |
-            $pwScript = Get-ChildItem -Path ./PlaywrightTests/bin -Recurse -Filter "playwright.ps1" | Select-Object -First 1
-            if (-not $pwScript) {
-              Write-Error "No se encontró el archivo playwright.ps1"
-              exit 1
-            }
-            & $pwScript.FullName install
+          $pwScript = Get-ChildItem -Path ./PlaywrightTests/bin -Recurse -Filter "playwright.ps1" | Select-Object -First 1
+          if (-not $pwScript) {
+            Write-Error "No se encontró el archivo playwright.ps1"
+            exit 1
+          }
+          & $pwScript.FullName install
 
-      - name: Run SpecFlow Tests
-        run: dotnet test ./PlaywrightTests/PlaywrightTests.csproj --configuration Release --no-build --logger "trx"
+      # 🧪 Ejecutar los tests Playwright con salida detallada para diagnóstico
+      - name: Run Playwright Tests
+        run: dotnet test ./PlaywrightTests/PlaywrightTests.csproj --configuration Release --no-build --logger "console;verbosity=detailed"
+
+      # 🔧 Instalar la herramienta de línea de comandos de Allure globalmente con npm
+      - name: Install Allure Commandline
+        run: |
+          npm install -g allure-commandline
+
+      # 📄 Generar el reporte HTML de Allure a partir de los resultados guardados en 'allure-results'
+      #     --clean: limpia la carpeta destino antes de generar
+      - name: Generate Allure Report
+        run: |
+          allure generate allure-results --clean -o allure-report
+
+      # 📦 Subir la carpeta 'allure-results' como artefacto para conservar los datos raw
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+
+      # 📦 Subir el reporte HTML generado en 'allure-report' para visualizarlo fuera del entorno CI
+      - name: Upload Allure HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      # 🚀 Publicar reporte Allure en GitHub Pages (rama 'gh-pages')
+      #    Usa peaceiris/actions-gh-pages para subir contenido de 'allure-report'
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./allure-report
+

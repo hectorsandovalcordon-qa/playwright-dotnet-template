@@ -1,4 +1,5 @@
 using Serilog;
+using Allure.Net.Commons;
 
 public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
 {
@@ -52,24 +53,33 @@ public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
         try
         {
             Log.Information("Iniciando test: {TestName}", testName);
-            await testBody();
-            Log.Information("Test {TestName} completado exitosamente", testName);
 
-            var successLog = $"Test {testName} completado exitosamente en {DateTime.Now:O}";
-            await File.WriteAllTextAsync(logPath, successLog);
+            await testBody();
+
+            Log.Information("Test {TestName} completado exitosamente", testName);
+            await File.WriteAllTextAsync(logPath, $"Test {testName} completado en {DateTime.Now:O}");
+
+            AllureApi.Step($"Adjuntando log exitoso", () =>
+            {
+                AllureApi.AddAttachment($"{testName}-log", "text/plain", logPath);
+            });
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Test {TestName} falló con excepción", testName);
+            Log.Error(ex, "Test {TestName} falló", testName);
 
-            await Page.ScreenshotAsync(new PageScreenshotOptions { Path = screenshotPath, FullPage = true });
-            Log.Information("Screenshot guardado en {ScreenshotPath}", screenshotPath);
+            await Page.ScreenshotAsync(
+                new PageScreenshotOptions { Path = screenshotPath, FullPage = true });
+            await File.WriteAllTextAsync(logPath,
+                $"Test {testName} falló en {DateTime.Now:O}\n{ex}");
 
-            var errorLogContent = $"Test {testName} falló en {DateTime.Now:O}\nExcepción:\n{ex}";
-            await File.WriteAllTextAsync(logPath, errorLogContent);
+            AllureApi.Step($"Adjuntando artefactos del fallo", () =>
+            {
+                AllureApi.AddAttachment($"{testName}-log", "text/plain", logPath);
+                AllureApi.AddAttachment($"{testName}-screenshot", "image/png", screenshotPath);
+            });
 
-            throw; // Re-lanzar para que la prueba se marque como fallida en xUnit
+            throw;
         }
     }
-
 }
