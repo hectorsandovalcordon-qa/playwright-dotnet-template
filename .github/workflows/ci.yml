@@ -2,19 +2,19 @@ name: Playwright Tests with Allure
 
 on:
   pull_request:
-    branches: 
+    branches:
       - dev
       - main
 
 jobs:
-  playwright-tests:
+  run-tests:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0'
@@ -22,19 +22,20 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: Build
+      - name: Build project
         run: dotnet build --no-restore --configuration Debug
 
       - name: Install Playwright Browsers
-        run: pwsh ./PlaywrightTests/bin/Debug/net8.0/playwright.ps1 install
+        shell: bash
+        run: npx playwright install
 
-      - name: Run Playwright Tests
-        run: dotnet test ./PlaywrightTests/PlaywrightTests.csproj --configuration Debug --no-build --logger "console;verbosity=detailed"
+      - name: Run Tests
+        run: dotnet test ./PlaywrightTests/PlaywrightTests.csproj --no-build --configuration Debug
 
-      - name: Prepare Allure Results
+      - name: Prepare Allure Results folder
         run: |
           mkdir -p allure-results
-          cp -r PlaywrightTests/bin/Debug/net8.0/allure-results/* allure-results/
+          cp -r ./PlaywrightTests/bin/Debug/net8.0/allure-results/* allure-results/
 
       - name: Install Allure Commandline
         run: npm install -g allure-commandline
@@ -48,13 +49,13 @@ jobs:
           name: allure-results
           path: allure-results
 
-      - name: Upload Allure HTML Report
+      - name: Upload Allure Report
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy Allure Report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
