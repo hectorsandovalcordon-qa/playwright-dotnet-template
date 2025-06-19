@@ -19,7 +19,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0'
+          dotnet-version: '8.0'
 
       # 📦 Restaurar las dependencias NuGet necesarias para el proyecto
       - name: Restore dependencies
