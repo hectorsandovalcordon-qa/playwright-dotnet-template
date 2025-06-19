@@ -1,9 +1,15 @@
-public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
+public abstract class BaseTest : IAsyncLifetime
 {
-    private readonly PlaywrightFixture _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
-    protected IBrowserContext Context = null!;
-    protected IPage Page = null!;
-    protected string BaseUrl = string.Empty;
+    private readonly PlaywrightFixture _fixture;
+
+    protected IBrowserContext Context { get; private set; } = null!;
+    protected IPage Page { get; private set; } = null!;
+    protected string BaseUrl { get; private set; } = string.Empty;
+
+    protected BaseTest(PlaywrightFixture fixture)
+    {
+        _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+    }
 
     public async Task InitializeAsync()
     {
@@ -17,6 +23,7 @@ public abstract class BaseTest(PlaywrightFixture fixture) : IAsyncLifetime
         if (Context != null)
         {
             await Context.CloseAsync();
+            Context = null!;
         }
     }
 }
