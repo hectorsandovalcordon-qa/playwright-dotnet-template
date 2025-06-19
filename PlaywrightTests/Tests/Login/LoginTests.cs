@@ -1,26 +1,22 @@
 using Allure.Xunit.Attributes;
 
 [Collection("Playwright collection")]
-[AllureSuite("Login Tests")]
+[AllureSuite("Login Suite")]
+[AllureFeature("Login")]
 public class LoginTests(PlaywrightFixture fixture) : BaseTest(fixture)
 {
-    [AllureFeature("Login")]
     [AllureStory("Successful login")]
     [Fact]
     public async Task Should_Login_Successfully()
     {
-        await ExecuteTestAsync(async () =>
-        {
-            // Arrange
-            var loginPage = new LoginPage(Page, BaseUrl);
-            await loginPage.NavigateAsync();
+        // Arrange
+        var loginPage = new LoginPage(Page, BaseUrl);
+        await loginPage.NavigateAsync();
 
-            // Act
-            await loginPage.LoginAsync("standard_user", "secret_sauce");
+        // Act
+        await loginPage.LoginAsync("standard_user", "secret_sauce");
 
-            // Assert
-            Assert.True(await loginPage.IsLoggedInAsync());
-
-        }, nameof(Should_Login_Successfully));
+        // Assert
+        Assert.True(await loginPage.IsLoggedInAsync());
     }
 }
