@@ -69,3 +69,13 @@ jobs:
           name: allure-report
           path: allure-report
 
+      # 🚀 Publicar reporte Allure en GitHub Pages (rama 'gh-pages')
+      #    Usa peaceiris/actions-gh-pages para subir contenido de 'allure-report'
+      - name: Deploy Allure Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          # Opcional: Cambia la rama si usas otra distinta para GitHub Pages
+          # publish_branch: gh-pages
+
