@@ -10,7 +10,7 @@ namespace Core.Configuration
         static ConfigManager()
         {
             var environment = Environment.GetEnvironmentVariable("TEST_ENVIRONMENT") ?? "Default";
-            var basePath = Directory.GetCurrentDirectory();
+            var basePath = Path.Combine(Directory.GetCurrentDirectory());
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
