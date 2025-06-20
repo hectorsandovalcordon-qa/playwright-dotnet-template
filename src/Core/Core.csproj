@@ -16,9 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="testSettings\*.json">
+    <None Update="testSettings\**\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
 
 </Project>
