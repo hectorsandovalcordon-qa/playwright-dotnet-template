@@ -1,50 +1,28 @@
-namespace src.Core.Drivers
+using Core.Configuration;
+
+namespace Core.Drivers
 {
     public static class DriverFactory
     {
-        public static async Task<IBrowserDriver> CreateDriverAsync(BrowserType browserType, bool headless = false)
-        {
-            switch (browserType)
+        private static readonly Dictionary<FrameworkTypeEnum, IDriverFrameworkFactory> Factories =
+            new()
             {
-                case BrowserType.Chrome:
-                    var chromeOptions = SeleniumDriverOptions.GetChromeOptions();
-                    if (headless) chromeOptions.AddArgument("--headless");
-                    var chromeDriver = new ChromeDriver(chromeOptions);
-                    return new SeleniumBrowserDriver(chromeDriver);
+                { FrameworkTypeEnum.Selenium, new SeleniumDriverFactory() },
+                { FrameworkTypeEnum.Playwright, new PlaywrightDriverFactory() }
+            };
 
-                case BrowserType.Firefox:
-                    var firefoxOptions = SeleniumDriverOptions.GetFirefoxOptions();
-                    if (headless) firefoxOptions.AddArgument("--headless");
-                    var firefoxDriver = new FirefoxDriver(firefoxOptions);
-                    return new SeleniumBrowserDriver(firefoxDriver);
+        public static async Task<IBrowserDriver> CreateDriverAsync()
+        {
+            var config = ConfigManager.Settings;
+            return await CreateDriverAsync(config.Framework, config.Browser, config.Headless);
+        }
 
-                case BrowserType.Edge:
-                    var edgeOptions = SeleniumDriverOptions.GetEdgeOptions();
-                    if (headless) edgeOptions.AddArgument("--headless");
-                    var edgeDriver = new EdgeDriver(edgeOptions);
-                    return new SeleniumBrowserDriver(edgeDriver);
+        public static async Task<IBrowserDriver> CreateDriverAsync(FrameworkTypeEnum framework, BrowserTypeEnum browser, bool headless)
+        {
+            if (!Factories.TryGetValue(framework, out var factory))
+                throw new NotSupportedException($"Framework no soportado: {framework}");
 
-                case BrowserType.PlaywrightChromium:
-                    var playwrightChromium = await Playwright.CreateAsync();
-                    var chromiumBrowser = await PlaywrightSetup.LaunchChromiumAsync(playwrightChromium, headless);
-                    var chromiumPage = await chromiumBrowser.NewPageAsync();
-                    return new PlaywrightBrowserDriver(playwrightChromium, chromiumBrowser, chromiumPage);
-
-                case BrowserType.PlaywrightFirefox:
-                    var playwrightFirefox = await Playwright.CreateAsync();
-                    var firefoxBrowser = await PlaywrightSetup.LaunchFirefoxAsync(playwrightFirefox, headless);
-                    var firefoxPage = await firefoxBrowser.NewPageAsync();
-                    return new PlaywrightBrowserDriver(playwrightFirefox, firefoxBrowser, firefoxPage);
-
-                case BrowserType.PlaywrightWebkit:
-                    var playwrightWebkit = await Playwright.CreateAsync();
-                    var webkitBrowser = await PlaywrightSetup.LaunchWebkitAsync(playwrightWebkit, headless);
-                    var webkitPage = await webkitBrowser.NewPageAsync();
-                    return new PlaywrightBrowserDriver(playwrightWebkit, webkitBrowser, webkitPage);
-
-                default:
-                    throw new NotSupportedException($"BrowserType {browserType} no soportado.");
-            }
+            return await factory.CreateAsync(browser, headless);
         }
     }
 }

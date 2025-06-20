@@ -1,4 +1,4 @@
-namespace src.Core.Drivers.Interfaces
+namespace Core.Drivers.Interfaces
 {
     public interface IBrowserDriver : IDisposable
     {

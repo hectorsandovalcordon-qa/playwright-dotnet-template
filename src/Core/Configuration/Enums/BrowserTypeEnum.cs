@@ -1,6 +1,6 @@
-namespace src.Core.Drivers
+namespace Core.Configuration.Enums
 {
-    public enum BrowserType
+    public enum BrowserTypeEnum
     {
         Chrome,
         Firefox,

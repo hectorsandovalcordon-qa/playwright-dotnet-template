@@ -1,4 +1,4 @@
-namespace src.Core.Drivers.Playwright
+namespace Core.Drivers.Playwright
 {
     public static class PlaywrightSetup
     {
@@ -7,7 +7,7 @@ namespace src.Core.Drivers.Playwright
             return await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
                 Headless = headless,
-                Args = new[] { "--start-maximized" }
+                Args = ["--start-maximized"]
             });
         }
 

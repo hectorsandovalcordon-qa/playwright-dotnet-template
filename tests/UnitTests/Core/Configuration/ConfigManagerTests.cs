@@ -1,60 +1,38 @@
-﻿namespace UnitTests.Configuration
+﻿using Core.Configuration;
+
+namespace UnitTests.Core.Configuration
 {
     public class ConfigManagerTests
     {
         [Fact]
-        public void Settings_ShouldNotBeNull()
+        public void Settings_ShouldUse_Default_WhenEnvironmentMissing()
         {
-            // Arrange & Act
-            var settings = ConfigManager.Settings;
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
+            File.WriteAllText("appsettings.json", @"{ ""TestSettings"": { ""Browser"": ""Chrome"", ""Headless"": false, ""Framework"": ""Selenium"", ""BaseUrl"": ""https://foo"", ""Timeout"": 10 }}");
 
-            // Assert
-            Assert.NotNull(settings);
+            var s = ConfigManager.Settings;
+
+            Assert.Equal("Chrome", s.Browser.ToString());
+            Assert.False(s.Headless);
+            Assert.Equal("Selenium", s.Framework.ToString());
+            Assert.Equal("https://foo", s.BaseUrl);
+            Assert.Equal(10, s.Timeout);
         }
 
         [Fact]
-        public void Settings_ShouldLoadBaseUrlAndTimeout()
+        public void Settings_ShouldOverride_WithEnvironment()
         {
-            // Arrange & Act
-            var settings = ConfigManager.Settings;
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "QA");
+            File.WriteAllText("appsettings.json", @"{ ""TestSettings"": { ""Browser"": ""Chrome"", ""Headless"": false, ""Framework"": ""Selenium"", ""BaseUrl"": ""https://foo"", ""Timeout"": 10 }}");
+            File.WriteAllText("appsettings.QA.json", @"{ ""TestSettings"": { ""Browser"": ""Firefox"", ""Headless"": true, ""BaseUrl"": ""https://qa"", ""Timeout"": 20 }}");
 
-            // Assert
-            Assert.Equal("https://example.com", settings.BaseUrl);
-            Assert.Equal(30, settings.Timeout);
-        }
+            var s = ConfigManager.Settings;
 
-        [Fact]
-        public void Settings_ShouldLoadQaEnvironmentSettings()
-        {
-            // Arrange
-            Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", "QA");
-
-            // Act
-            var settings = ConfigManager.Settings;
-
-            // Assert
-            Assert.Equal("https://qa.example.com", settings.BaseUrl);
-            Assert.Equal(60, settings.Timeout);
-
-            // Cleanup
-            Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", null);
-        }
-
-        [Fact]
-        public void Settings_ShouldLoadProdEnvironmentSettings()
-        {
-            // Arrange
-            Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", "PROD");
-
-            // Act
-            var settings = ConfigManager.Settings;
-
-            // Assert
-            Assert.Equal("https://prod.example.com", settings.BaseUrl);
-            Assert.Equal(90, settings.Timeout);
-
-            // Cleanup
-            Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", null);
+            Assert.Equal("Firefox", s.Browser.ToString());
+            Assert.True(s.Headless);
+            Assert.Equal("https://qa", s.BaseUrl);
+            Assert.Equal(20, s.Timeout);
+            Assert.Equal("Selenium", s.Framework.ToString());
         }
     }
 }

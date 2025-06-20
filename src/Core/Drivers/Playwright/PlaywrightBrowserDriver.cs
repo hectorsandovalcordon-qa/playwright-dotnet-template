@@ -1,4 +1,4 @@
-namespace src.Core.Drivers.Playwright
+namespace Core.Drivers.Playwright
 {
     public class PlaywrightBrowserDriver(IPlaywright playwright, IBrowser browser, IPage page) : IBrowserDriver
     {

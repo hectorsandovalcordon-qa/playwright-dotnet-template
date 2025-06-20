@@ -1,4 +1,4 @@
-namespace src.Core.Drivers.Selenium
+namespace Core.Drivers.Selenium
 {
     public class SeleniumBrowserDriver(IWebDriver driver) : IBrowserDriver
     {
