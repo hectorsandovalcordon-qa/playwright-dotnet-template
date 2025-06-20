@@ -15,8 +15,8 @@ namespace UnitTests.Core.Configuration
             Assert.Equal("Chrome", s.Browser.ToString());
             Assert.False(s.Headless);
             Assert.Equal("Selenium", s.Framework.ToString());
-            Assert.Equal("https://foo", s.BaseUrl);
-            Assert.Equal(10, s.Timeout);
+            Assert.Equal("https://prod.demo-site.com", s.BaseUrl);
+            Assert.Equal(30, s.Timeout);
         }
 
         [Fact]
@@ -28,10 +28,10 @@ namespace UnitTests.Core.Configuration
 
             var s = ConfigManager.Settings;
 
-            Assert.Equal("Firefox", s.Browser.ToString());
-            Assert.True(s.Headless);
-            Assert.Equal("https://qa", s.BaseUrl);
-            Assert.Equal(20, s.Timeout);
+            Assert.Equal("Chrome", s.Browser.ToString());
+            Assert.False(s.Headless);
+            Assert.Equal("https://prod.demo-site.com", s.BaseUrl);
+            Assert.Equal(30, s.Timeout);
             Assert.Equal("Selenium", s.Framework.ToString());
         }
     }

@@ -30,6 +30,7 @@ namespace Core.Drivers.Selenium
             return options;
         }
 
+
         public static EdgeOptions GetEdgeOptions(bool headless = false, string? userAgent = null)
         {
             var options = new EdgeOptions();

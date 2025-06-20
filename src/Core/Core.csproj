@@ -15,4 +15,10 @@
     <PackageReference Include="Selenium.WebDriver" Version="4.33.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="testSettings\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

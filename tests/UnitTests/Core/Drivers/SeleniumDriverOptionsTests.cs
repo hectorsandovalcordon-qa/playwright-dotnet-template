@@ -14,15 +14,19 @@ public class SeleniumDriverOptionsTests
     [Fact]
     public void GetFirefoxOptions_ShouldContain_HeadlessFlag()
     {
+        // Act
         var options = SeleniumDriverOptions.GetFirefoxOptions(headless: true);
+        var capabilities = options.ToCapabilities();
 
-        var argsField = typeof(FirefoxOptions)
-            .GetField("_commandLineArguments", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        // Extract the moz:firefoxOptions capability
+        var firefoxOptions = capabilities.GetCapability("moz:firefoxOptions") as Dictionary<string, object>;
 
-        var args = argsField?.GetValue(options) as System.Collections.Generic.List<string>;
+        Assert.NotNull(firefoxOptions);
+        Assert.True(firefoxOptions.TryGetValue("args", out var argsObj));
 
+        var args = argsObj as IEnumerable<object>;
         Assert.NotNull(args);
-        Assert.Contains("-headless", args);
+        Assert.Contains("-headless", args.Cast<string>());
     }
 
     [Fact]
