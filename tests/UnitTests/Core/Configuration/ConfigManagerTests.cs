@@ -5,6 +5,7 @@ namespace UnitTests.Core.Configuration
     [AllureSuite("Configuration")]
     public class ConfigManagerTests
     {
+        [Fact]
         [AllureSubSuite("Default Config")]
         public void Settings_ShouldUse_Default_WhenEnvironmentMissing()
         {
@@ -20,6 +21,7 @@ namespace UnitTests.Core.Configuration
             Assert.Equal(10, s.Timeout);
         }
 
+        [Fact]
         [AllureSubSuite("Environment Override")]
         public void Settings_ShouldOverride_WithEnvironment()
         {

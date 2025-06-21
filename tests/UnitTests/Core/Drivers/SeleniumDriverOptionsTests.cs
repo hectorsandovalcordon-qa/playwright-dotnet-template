@@ -5,6 +5,7 @@ namespace UnitTests.Core.Drivers
     [AllureSuite("Selenium Driver Options")]
     public class SeleniumDriverOptionsTests
     {
+        [Fact]
         [AllureSubSuite("Chrome")]
         public void GetChromeOptions_ShouldContain_Maximized()
         {
@@ -13,6 +14,7 @@ namespace UnitTests.Core.Drivers
             Assert.Contains("--start-maximized", opt.Arguments);
         }
 
+        [Fact]
         [AllureSubSuite("Firefox")]
         public void GetFirefoxOptions_ShouldContain_HeadlessFlag()
         {
@@ -29,6 +31,7 @@ namespace UnitTests.Core.Drivers
             Assert.Contains("-headless", args.Cast<string>());
         }
 
+        [Fact]
         [AllureSubSuite("Edge")]
         public void GetEdgeOptions_ShouldContain_HeadlessFlag()
         {
