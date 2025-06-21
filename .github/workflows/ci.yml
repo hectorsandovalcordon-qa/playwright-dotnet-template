@@ -1,57 +1,68 @@
-name: .NET Tests with Allure
+name: .NET Tests with Allure and GitHub Pages
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  RESULTS_DIR: tests/UnitTests/bin/Debug/net9.0/allure-results
+  REPORT_DIR: tests/UnitTests/bin/Debug/net9.0/allure-report
 
 on:
   push:
     branches:
-      - dev
       - main
+      - dev
   pull_request:
 
 jobs:
-  test:
+  test-dev:
+    if: github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup .NET
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.0.x'
-
-      - name: List project root files and folders
-        run: ls -l
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Build UnitTests project
         run: dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
 
-      - name: List tests/UnitTests/bin after build
-        run: ls -lR tests/UnitTests/bin/
-
-      - name: Copy allureConfig.json to output folder
+      - name: Run tests with Allure (dev)
         run: |
-          mkdir -p tests/UnitTests/bin/Debug/net9.0
-          cp tests/UnitTests/allureConfig.json tests/UnitTests/bin/Debug/net9.0/allureConfig.json
+          mkdir -p $RESULTS_DIR
+          dotnet test ./tests/UnitTests/UnitTests.csproj --no-build --configuration Debug --logger "Allure;LogFileName=allure-results" --results-directory $RESULTS_DIR
 
-      - name: Create allure-results folder
-        run: mkdir -p tests/UnitTests/bin/Debug/net9.0/allure-results
+  test-main:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: test-dev
+    steps:
+      - uses: actions/checkout@v3
 
-      - name: Run tests with Allure logger
-        env:
-          ALLURE_CONFIG: tests/UnitTests/bin/Debug/net9.0/allureConfig.json
-        run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj \
-            --no-build \
-            --configuration Debug \
-            --logger "trx;LogFileName=test-results.trx" \
-            --logger "Allure"
-
-      - name: List allure-results folder contents
-        run: ls -l tests/UnitTests/bin/Debug/net9.0/allure-results || echo "No allure-results folder found"
-
-      - name: Upload Allure Results Artifact
-        uses: actions/upload-artifact@v4
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
         with:
-          name: allure-results
-          path: tests/UnitTests/bin/Debug/net9.0/allure-results
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build UnitTests project
+        run: dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
+
+      - name: Run tests with Allure (main)
+        run: |
+          mkdir -p $RESULTS_DIR
+          dotnet test ./tests/UnitTests/UnitTests.csproj --no-build --configuration Debug --logger "Allure;LogFileName=allure-results" --results-directory $RESULTS_DIR
+
+      - name: Install Allure CLI
+        run: |
+          curl -sL https://github.com/allure-framework/allure2/releases/latest/download/allure-2.22.1.tgz | tar -xz -C $HOME
+          echo "$HOME/allure-2.22.1/bin" >> $GITHUB_PATH
+
+      - name: Generate Allure Report
+        run: allure generate $RESULTS_DIR --clean -o $REPORT_DIR
+
+      - name: Deploy Allure Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: $REPORT_DIR
+          publish_branch: gh-pages
