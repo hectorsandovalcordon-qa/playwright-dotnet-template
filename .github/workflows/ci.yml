@@ -28,7 +28,7 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Debug --no-restore
 
-      - name: Run Unit Tests with Allure JSON generation
+      - name: Run Unit Tests with Allure
         run: |
           mkdir -p allure-results
           dotnet test ./tests/UnitTests/UnitTests.csproj \
@@ -36,22 +36,23 @@ jobs:
             --configuration Debug \
             --logger "trx;LogFileName=test-results.trx"
 
-      - name: Debug Allure Results folder
+      - name: Print current directory
+        run: pwd
+
+      - name: List files in tests/UnitTests/bin/Debug/net9.0
+        run: ls -R tests/UnitTests/bin/Debug/net9.0
+
+      - name: Check allure-results folder exists
         run: |
-          if [ -d tests/UnitTests/bin/Debug/net9.0/allure-results ]; then
-            ls -la tests/UnitTests/bin/Debug/net9.0/allure-results
-          else
-            echo "Allure results folder not found!"
+          if [ ! -d tests/UnitTests/bin/Debug/net9.0/allure-results ]; then
+            echo "Error: allure-results folder not found!"
+            exit 1
           fi
 
       - name: Copy Allure Results
         run: |
-          if [ -d tests/UnitTests/bin/Debug/net9.0/allure-results ]; then
-            mkdir -p allure-results
-            cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/
-          else
-            echo "No allure results found to copy"
-          fi
+          mkdir -p allure-results
+          cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/
 
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
