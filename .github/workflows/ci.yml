@@ -12,9 +12,10 @@ jobs:
 
     env:
       TEST_ENVIRONMENT: QA
+      ALLURE_CONFIG: ./tests/UnitTests/allureConfig.json
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Setup .NET SDK
@@ -28,23 +29,22 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Debug --no-restore
 
-      - name: Run Unit Tests with Allure
+      - name: Run Unit Tests (Allure results via config)
         run: |
-          mkdir -p tests/UnitTests/bin/Debug/net9.0/allure-results
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --no-build \
             --configuration Debug \
-            --logger "Allure" \
-            --test-adapter-path:. \
-            --results-directory ./tests/UnitTests/bin/Debug/net9.0/allure-results
+            --logger "trx;LogFileName=test-results.trx"
 
-      - name: Debug Allure Results folder
-        run: ls -la tests/UnitTests/bin/Debug/net9.0/allure-results
+      - name: List allure-results (debug)
+        run: |
+          echo "Contents of allure-results:"
+          ls -R tests/UnitTests/bin/Debug/net9.0/allure-results || echo "No results found"
 
       - name: Copy Allure Results
         run: |
           mkdir -p allure-results
-          cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/
+          cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/ || echo "No files to copy"
 
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
@@ -58,7 +58,7 @@ jobs:
     if: ${{ needs.build-and-test.result == 'success' }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Download Allure Results
@@ -81,7 +81,7 @@ jobs:
       - name: Generate Allure Report
         run: allure generate allure-results --clean -o allure-report
 
-      - name: Deploy Allure Report to GitHub Pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
