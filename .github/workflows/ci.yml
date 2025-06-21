@@ -1,85 +1,72 @@
-name: Playwright Tests with Allure
+name: CI with Allure Report
 
 on:
+  push:
+    branches: [main, dev]
   pull_request:
-    branches: 
-      - dev
-      - main
+    branches: [main, dev]
 
 jobs:
-  playwright-tests:
+  build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      TEST_ENVIRONMENT: QA
+
     steps:
-      # 🔄 Clonar el repositorio para tener el código localmente
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # ⚙️ Configurar .NET SDK (versión 8.0)
-      - name: Setup .NET
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0'
+          dotnet-version: '9.0'
 
-      # 📦 Restaurar las dependencias NuGet necesarias para el proyecto
       - name: Restore dependencies
         run: dotnet restore
 
-      # 🏗 Construir el proyecto sin restaurar (porque ya lo hicimos antes)
-      - name: Build
-        run: dotnet build --no-restore --configuration Release
+      - name: Build solution
+        run: dotnet build --configuration Debug --no-restore
 
-      # 🌐 Instalar los navegadores que Playwright necesita para ejecutar los tests
-      - name: Install Playwright Browsers
-        shell: pwsh
-        run: |
-          $pwScript = Get-ChildItem -Path ./PlaywrightTests/bin -Recurse -Filter "playwright.ps1" | Select-Object -First 1
-          if (-not $pwScript) {
-            Write-Error "No se encontró el archivo playwright.ps1"
-            exit 1
-          }
-          & $pwScript.FullName install
+      - name: Run Unit Tests
+        run: dotnet test ./tests/UnitTests/UnitTests.csproj --no-build --configuration Debug
+        continue-on-error: false
 
-      # 🧪 Ejecutar los tests Playwright con salida detallada para diagnóstico
-      - name: Run Playwright Tests
-        run: dotnet test ./PlaywrightTests/PlaywrightTests.csproj --configuration Release --no-build --logger "console;verbosity=detailed"
-
-      # 🔄 Mover carpeta allure-results a la raíz para que el reporte se genere desde ahí
-      - name: Move Allure Results to fixed folder
-        run: |
-          mkdir -p allure-results
-          cp -r ./PlaywrightTests/bin/Release/net8.0/allure-results/* allure-results/
-
-      # 🔧 Instalar la herramienta de línea de comandos de Allure globalmente con npm
-      - name: Install Allure Commandline
-        run: |
-          npm install -g allure-commandline
-
-      # 📄 Generar el reporte HTML de Allure a partir de los resultados guardados en 'allure-results'
-      #     --clean: limpia la carpeta destino antes de generar
-      - name: Generate Allure Report
-        run: |
-          allure generate allure-results --clean -o allure-report
-
-      # 📦 Subir la carpeta 'allure-results' como artefacto para conservar los datos raw
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
+          path: tests/UnitTests/bin/Debug/net9.0/allure-results
+          
+  publish-allure:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: ${{ needs.build-and-test.result == 'success' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: allure-results
           path: allure-results
 
-      # 📦 Subir el reporte HTML generado en 'allure-report' para visualizarlo fuera del entorno CI
-      - name: Upload Allure HTML Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: allure-report
+      - name: Install Java
+        run: sudo apt-get install -y openjdk-11-jre
 
-      # 🚀 Publicar reporte Allure en GitHub Pages (rama 'gh-pages')
-      #    Usa peaceiris/actions-gh-pages para subir contenido de 'allure-report'
+      - name: Install Allure CLI
+        run: |
+          ALLURE_VERSION=2.21.0
+          wget https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
+          unzip allure-${ALLURE_VERSION}.zip -d $HOME/.allure
+          echo "$HOME/.allure/allure-${ALLURE_VERSION}/bin" >> $GITHUB_PATH
+
+      - name: Generate Allure Report
+        run: allure generate allure-results --clean -o allure-report
+
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
           publish_dir: ./allure-report
+          publish_branch: gh-pages
