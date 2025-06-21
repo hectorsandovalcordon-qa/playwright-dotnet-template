@@ -1,89 +1,56 @@
-name: CI with Allure Report
+name: .NET Tests with Allure
 
 on:
   push:
-    branches: [main, dev]
+    branches:
+      - main
   pull_request:
-    branches: [main, dev]
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
-    env:
-      TEST_ENVIRONMENT: QA
-      ALLURE_CONFIG: tests/UnitTests/bin/Debug/net9.0/allureConfig.json
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: List project root files and folders
+        run: ls -l
+
+      - name: List tests/UnitTests folder recursively
+        run: ls -lR tests/UnitTests
+
+      - name: List output bin folder recursively
+        run: ls -lR tests/UnitTests/bin/Debug/net9.0
 
       - name: Build solution
-        run: dotnet build --configuration Debug --no-restore
+        run: dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
 
-      - name: Run Unit Tests (Allure results via config)
+      - name: Copy allureConfig.json to output folder
+        run: cp tests/UnitTests/allureConfig.json tests/UnitTests/bin/Debug/net9.0/allureConfig.json
+
+      - name: Run tests with Allure logger
+        env:
+          ALLURE_CONFIG: tests/UnitTests/bin/Debug/net9.0/allureConfig.json
         run: |
+          mkdir -p tests/UnitTests/bin/Debug/net9.0/allure-results
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --no-build \
             --configuration Debug \
-            --logger "trx;LogFileName=test-results.trx"
+            --logger "trx;LogFileName=test-results.trx" \
+            --logger "Allure"
 
-      - name: List allure-results (debug)
-        run: |
-          echo "Contents of allure-results:"
-          ls -R tests/UnitTests/bin/Debug/net9.0/allure-results || echo "No results found"
+      - name: List allure-results folder contents
+        run: ls -l tests/UnitTests/bin/Debug/net9.0/allure-results
 
-      - name: Copy Allure Results
-        run: |
-          mkdir -p allure-results
-          cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/ || echo "No files to copy"
-
-      - name: Upload Allure Results
-        uses: actions/upload-artifact@v4
+      # Opcional: sube resultados como artifacts para revisar fuera del job
+      - name: Upload Allure Results Artifact
+        uses: actions/upload-artifact@v3
         with:
           name: allure-results
-          path: allure-results
-
-  publish-allure:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    if: ${{ needs.build-and-test.result == 'success' }}
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Download Allure Results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results
-          path: allure-results
-
-      - name: Install Java
-        run: sudo apt-get install -y openjdk-11-jre
-
-      - name: Install Allure CLI
-        run: |
-          ALLURE_VERSION=2.21.0
-          wget https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-          unzip allure-${ALLURE_VERSION}.zip -d $HOME/.allure
-          echo "$HOME/.allure/allure-${ALLURE_VERSION}/bin" >> $GITHUB_PATH
-          export PATH="$HOME/.allure/allure-${ALLURE_VERSION}/bin:$PATH"
-
-      - name: Generate Allure Report
-        run: allure generate allure-results --clean -o allure-report
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
-          publish_branch: gh-pages
+          path: tests/UnitTests/bin/Debug/net9.0/allure-results
