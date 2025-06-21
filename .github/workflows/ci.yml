@@ -22,23 +22,24 @@ jobs:
       - name: List project root files and folders
         run: ls -l
 
-      - name: List tests/UnitTests folder recursively
-        run: ls -lR tests/UnitTests
-
-      - name: List output bin folder recursively
-        run: ls -lR tests/UnitTests/bin/Debug/net9.0
-
-      - name: Build solution
+      - name: Build UnitTests project
         run: dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
 
+      - name: List tests/UnitTests/bin after build
+        run: ls -lR tests/UnitTests/bin/
+
       - name: Copy allureConfig.json to output folder
-        run: cp tests/UnitTests/allureConfig.json tests/UnitTests/bin/Debug/net9.0/allureConfig.json
+        run: |
+          mkdir -p tests/UnitTests/bin/Debug/net9.0
+          cp tests/UnitTests/allureConfig.json tests/UnitTests/bin/Debug/net9.0/allureConfig.json
+
+      - name: Create allure-results folder
+        run: mkdir -p tests/UnitTests/bin/Debug/net9.0/allure-results
 
       - name: Run tests with Allure logger
         env:
           ALLURE_CONFIG: tests/UnitTests/bin/Debug/net9.0/allureConfig.json
         run: |
-          mkdir -p tests/UnitTests/bin/Debug/net9.0/allure-results
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --no-build \
             --configuration Debug \
@@ -46,7 +47,7 @@ jobs:
             --logger "Allure"
 
       - name: List allure-results folder contents
-        run: ls -l tests/UnitTests/bin/Debug/net9.0/allure-results
+        run: ls -l tests/UnitTests/bin/Debug/net9.0/allure-results || echo "No allure-results folder found"
 
       - name: Upload Allure Results Artifact
         uses: actions/upload-artifact@v4
