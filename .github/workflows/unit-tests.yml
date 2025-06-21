@@ -2,35 +2,38 @@
 name: Unit Tests
 
 on:
-  pull_request:
-    branches:
-      - dev
-      - main
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
 
 jobs:
   unit-tests:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     env:
-      ASPNETCORE_ENVIRONMENT: QA
+      TEST_ENVIRONMENT: QA
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0'
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
 
-      - name: Build solution
+      - name: Build
         run: dotnet build --no-restore --configuration Debug
 
-      - name: List output directory before tests
-        run: ls -R ./tests/UnitTests/bin/Debug/net9.0
-
       - name: Run Unit Tests
-        run: dotnet test ./tests/UnitTests/UnitTests.csproj --no-build --configuration Debug --logger "console;verbosity=detailed"
+        run: dotnet test ./tests/UnitTests/UnitTests.csproj --no-build --configuration Debug
+        # generate allure-results here
+
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-unit
+          path: tests/UnitTests/bin/Debug/net9.0/allure-results

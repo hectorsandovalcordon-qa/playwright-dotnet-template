@@ -4,16 +4,15 @@ name: Publish Allure Report
 on:
   workflow_run:
     workflows: ["Unit Tests"]
-    types:
-      - completed
+    types: [completed]
 
 jobs:
   allure-report:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout main repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Download Allure Results
         uses: actions/download-artifact@v4
