@@ -2,9 +2,11 @@
 
 namespace UnitTests.Core.Configuration
 {
+    [AllureSuite("Configuration")]
     public class ConfigManagerTests
     {
         [Fact]
+        [AllureSubSuite("Default Config")]
         public void Settings_ShouldUse_Default_WhenEnvironmentMissing()
         {
             Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", null);
@@ -20,6 +22,7 @@ namespace UnitTests.Core.Configuration
         }
 
         [Fact]
+        [AllureSubSuite("Environment Override")]
         public void Settings_ShouldOverride_WithEnvironment()
         {
             Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", "QA");
