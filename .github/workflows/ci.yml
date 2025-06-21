@@ -39,24 +39,20 @@ jobs:
           path: tests/UnitTests/bin/Debug/net9.0/allure-results
 
   publish-allure:
-    needs: build-and-test
     runs-on: ubuntu-latest
+    needs: build-and-test
     if: ${{ needs.build-and-test.result == 'success' }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download Allure Results
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: allure-results
           path: allure-results
 
-      - name: Install Allure CLI
-        run: |
-          sudo apt update
-          sudo apt install -y allure
+      - name: Setup Allure CLI
+        uses: sergueik/setup-allure@v1
 
       - name: Generate Allure Report
         run: |
