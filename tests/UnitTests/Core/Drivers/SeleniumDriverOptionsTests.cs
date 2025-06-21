@@ -1,38 +1,45 @@
+using Allure.Xunit;
+using Allure.Xunit.Attributes;
 using Core.Drivers.Selenium;
 using OpenQA.Selenium.Firefox;
 
-public class SeleniumDriverOptionsTests
+namespace UnitTests.Core.Drivers
 {
-    [Fact]
-    public void GetChromeOptions_ShouldContain_Maximized()
+    [AllureSuite("Selenium Driver Options")]
+    public class SeleniumDriverOptionsTests
     {
-        var opt = SeleniumDriverOptions.GetChromeOptions(headless: true);
-        Assert.Contains("--headless=new", opt.Arguments);
-        Assert.Contains("--start-maximized", opt.Arguments);
-    }
+        [AllureXunit]
+        [AllureSubSuite("Chrome")]
+        public void GetChromeOptions_ShouldContain_Maximized()
+        {
+            var opt = SeleniumDriverOptions.GetChromeOptions(headless: true);
+            Assert.Contains("--headless=new", opt.Arguments);
+            Assert.Contains("--start-maximized", opt.Arguments);
+        }
 
-    [Fact]
-    public void GetFirefoxOptions_ShouldContain_HeadlessFlag()
-    {
-        // Act
-        var options = SeleniumDriverOptions.GetFirefoxOptions(headless: true);
-        var capabilities = options.ToCapabilities();
+        [AllureXunit]
+        [AllureSubSuite("Firefox")]
+        public void GetFirefoxOptions_ShouldContain_HeadlessFlag()
+        {
+            var options = SeleniumDriverOptions.GetFirefoxOptions(headless: true);
+            var capabilities = options.ToCapabilities();
 
-        // Extract the moz:firefoxOptions capability
-        var firefoxOptions = capabilities.GetCapability("moz:firefoxOptions") as Dictionary<string, object>;
+            var firefoxOptions = capabilities.GetCapability("moz:firefoxOptions") as Dictionary<string, object>;
 
-        Assert.NotNull(firefoxOptions);
-        Assert.True(firefoxOptions.TryGetValue("args", out var argsObj));
+            Assert.NotNull(firefoxOptions);
+            Assert.True(firefoxOptions.TryGetValue("args", out var argsObj));
 
-        var args = argsObj as IEnumerable<object>;
-        Assert.NotNull(args);
-        Assert.Contains("-headless", args.Cast<string>());
-    }
+            var args = argsObj as IEnumerable<object>;
+            Assert.NotNull(args);
+            Assert.Contains("-headless", args.Cast<string>());
+        }
 
-    [Fact]
-    public void GetEdgeOptions_ShouldContain_HeadlessFlag()
-    {
-        var opt = SeleniumDriverOptions.GetEdgeOptions(headless: true);
-        Assert.Contains("headless", opt.Arguments);
+        [AllureXunit]
+        [AllureSubSuite("Edge")]
+        public void GetEdgeOptions_ShouldContain_HeadlessFlag()
+        {
+            var opt = SeleniumDriverOptions.GetEdgeOptions(headless: true);
+            Assert.Contains("headless", opt.Arguments);
+        }
     }
 }

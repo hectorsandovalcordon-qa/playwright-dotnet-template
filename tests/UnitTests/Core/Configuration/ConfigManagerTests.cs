@@ -1,10 +1,14 @@
-﻿using Core.Configuration;
+﻿using Allure.Xunit.Attributes;
+using Allure.Xunit;
+using Core.Configuration;
 
 namespace UnitTests.Core.Configuration
 {
+    [AllureSuite("Configuration")]
     public class ConfigManagerTests
     {
-        [Fact]
+        [AllureXunit]
+        [AllureSubSuite("Default Config")]
         public void Settings_ShouldUse_Default_WhenEnvironmentMissing()
         {
             Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", null);
@@ -19,7 +23,8 @@ namespace UnitTests.Core.Configuration
             Assert.Equal(10, s.Timeout);
         }
 
-        [Fact]
+        [AllureXunit]
+        [AllureSubSuite("Environment Override")]
         public void Settings_ShouldOverride_WithEnvironment()
         {
             Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", "QA");
