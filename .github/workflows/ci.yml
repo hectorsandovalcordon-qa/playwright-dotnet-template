@@ -28,14 +28,13 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Debug --no-restore
 
-      - name: Run Unit Tests with Allure
+      - name: Run Unit Tests with Allure JSON generation
         run: |
           mkdir -p allure-results
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --no-build \
             --configuration Debug \
-            --logger "trx;LogFileName=test-results.trx" \
-            --logger "Allure"
+            --logger "trx;LogFileName=test-results.trx"
 
       - name: Debug Allure Results folder
         run: |
@@ -83,4 +82,15 @@ jobs:
           ALLURE_VERSION=2.21.0
           wget https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
           unzip allure-${ALLURE_VERSION}.zip -d $HOME/.allure
-          echo "$HOME/.allure/allure-${ALLU
+          echo "$HOME/.allure/allure-${ALLURE_VERSION}/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.allure/allure-${ALLURE_VERSION}/bin:$PATH"
+
+      - name: Generate Allure Report
+        run: allure generate allure-results --clean -o allure-report
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+          publish_branch: gh-pages
