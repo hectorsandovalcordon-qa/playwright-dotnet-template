@@ -1,14 +1,10 @@
-using Allure.Xunit;
-using Allure.Xunit.Attributes;
 using Core.Drivers.Selenium;
-using OpenQA.Selenium.Firefox;
 
 namespace UnitTests.Core.Drivers
 {
     [AllureSuite("Selenium Driver Options")]
     public class SeleniumDriverOptionsTests
     {
-        [AllureXunit]
         [AllureSubSuite("Chrome")]
         public void GetChromeOptions_ShouldContain_Maximized()
         {
@@ -17,7 +13,6 @@ namespace UnitTests.Core.Drivers
             Assert.Contains("--start-maximized", opt.Arguments);
         }
 
-        [AllureXunit]
         [AllureSubSuite("Firefox")]
         public void GetFirefoxOptions_ShouldContain_HeadlessFlag()
         {
@@ -34,7 +29,6 @@ namespace UnitTests.Core.Drivers
             Assert.Contains("-headless", args.Cast<string>());
         }
 
-        [AllureXunit]
         [AllureSubSuite("Edge")]
         public void GetEdgeOptions_ShouldContain_HeadlessFlag()
         {
