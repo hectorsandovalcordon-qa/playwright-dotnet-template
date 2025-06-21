@@ -12,7 +12,7 @@ jobs:
 
     env:
       TEST_ENVIRONMENT: QA
-      ALLURE_CONFIG: ./tests/UnitTests/allureConfig.json
+      ALLURE_CONFIG: tests/UnitTests/bin/Debug/net9.0/allureConfig.json
 
     steps:
       - name: Checkout repo
