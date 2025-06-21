@@ -48,9 +48,8 @@ jobs:
       - name: List allure-results folder contents
         run: ls -l tests/UnitTests/bin/Debug/net9.0/allure-results
 
-      # Opcional: sube resultados como artifacts para revisar fuera del job
       - name: Upload Allure Results Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: tests/UnitTests/bin/Debug/net9.0/allure-results
