@@ -35,12 +35,22 @@ jobs:
             --no-build \
             --configuration Debug \
             --logger "trx;LogFileName=test-results.trx"
-        continue-on-error: false
+
+      - name: Debug Allure Results folder
+        run: |
+          if [ -d tests/UnitTests/bin/Debug/net9.0/allure-results ]; then
+            ls -la tests/UnitTests/bin/Debug/net9.0/allure-results
+          else
+            echo "Allure results folder not found!"
+          fi
 
       - name: Copy Allure Results
         run: |
           if [ -d tests/UnitTests/bin/Debug/net9.0/allure-results ]; then
+            mkdir -p allure-results
             cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/
+          else
+            echo "No allure results found to copy"
           fi
 
       - name: Upload Allure Results
