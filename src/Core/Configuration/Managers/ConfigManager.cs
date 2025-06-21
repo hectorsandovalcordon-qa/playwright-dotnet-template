@@ -10,17 +10,24 @@ namespace Core.Configuration
         static ConfigManager()
         {
             var environment = Environment.GetEnvironmentVariable("TEST_ENVIRONMENT") ?? "Default";
-            var basePath = Path.Combine(Directory.GetCurrentDirectory());
+            var basePath = Directory.GetCurrentDirectory();
+
+            var configPath = Path.Combine(basePath, "appsettings.json");
+            if (!File.Exists(configPath))
+            {
+                throw new FileNotFoundException("Config file not found. Check CI setup.", configPath);
+            }
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
-                .AddJsonFile("testsettings/appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"testsettings/appsettings.{environment}.json", optional: true, reloadOnChange: true);
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
 
             configuration = builder.Build();
 
             var section = configuration.GetSection("TestSettings");
-            settings = section.Get<TestSettings>() ?? throw new InvalidOperationException("No se pudo cargar la sección 'TestSettings' desde appsettings.json");
+            settings = section.Get<TestSettings>() 
+                ?? throw new InvalidOperationException("No se pudo cargar la sección 'TestSettings' desde appsettings.json");
         }
 
         /// <summary>
