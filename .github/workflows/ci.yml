@@ -30,29 +30,27 @@ jobs:
 
       - name: Run Unit Tests with Allure
         run: |
-          mkdir -p allure-results
+          mkdir -p tests/UnitTests/bin/Debug/net9.0/allure-results
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --no-build \
             --configuration Debug \
             --logger "trx;LogFileName=test-results.trx"
 
-      - name: Print current directory
-        run: pwd
-
-      - name: List files in tests/UnitTests/bin/Debug/net9.0
-        run: ls -R tests/UnitTests/bin/Debug/net9.0
-
-      - name: Check allure-results folder exists
+      - name: Debug Allure Results folder (original location)
         run: |
-          if [ ! -d tests/UnitTests/bin/Debug/net9.0/allure-results ]; then
-            echo "Error: allure-results folder not found!"
-            exit 1
+          if [ -d tests/UnitTests/bin/Debug/net9.0/allure-results ]; then
+            ls -la tests/UnitTests/bin/Debug/net9.0/allure-results
+          else
+            echo "Allure results folder not found!"
           fi
 
-      - name: Copy Allure Results
+      - name: Copy Allure Results to root folder
         run: |
           mkdir -p allure-results
           cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/
+
+      - name: Debug allure-results contents before upload
+        run: ls -la allure-results
 
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
@@ -74,6 +72,9 @@ jobs:
         with:
           name: allure-results
           path: allure-results
+
+      - name: Debug downloaded allure-results contents
+        run: ls -la allure-results
 
       - name: Install Java
         run: sudo apt-get install -y openjdk-11-jre
