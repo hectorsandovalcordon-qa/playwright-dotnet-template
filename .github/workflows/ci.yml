@@ -20,7 +20,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0'
+          dotnet-version: '9.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -28,34 +28,22 @@ jobs:
       - name: Build solution
         run: dotnet build --configuration Debug --no-restore
 
-      - name: Run Unit Tests with Allure
+      - name: Run Unit Tests (Allure results generated via code)
         run: |
-          mkdir -p tests/UnitTests/bin/Debug/net9.0/allure-results
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --no-build \
             --configuration Debug \
-            --logger "trx;LogFileName=test-results.trx" \
-            --logger "Allure"
+            --logger "trx;LogFileName=test-results.trx"
 
-      - name: Debug Allure Results folder (after tests)
+      - name: Debug Allure Results folder
         run: |
-          if [ -d tests/UnitTests/bin/Debug/net9.0/allure-results ]; then
-            echo "Allure results folder found, listing contents:"
-            ls -la tests/UnitTests/bin/Debug/net9.0/allure-results || true
-            echo "Showing head of JSON files:"
-            head -n 20 tests/UnitTests/bin/Debug/net9.0/allure-results/*.json || echo "No JSON files found"
-          else
-            echo "Allure results folder NOT found!"
-          fi
+          echo "Contenido de allure-results:"
+          ls -la tests/UnitTests/bin/Debug/net9.0/allure-results || echo "No se encontró la carpeta allure-results"
 
-      - name: Copy Allure Results to root folder
+      - name: Copy Allure Results
         run: |
-          if [ -d tests/UnitTests/bin/Debug/net9.0/allure-results ] && [ "$(ls -A tests/UnitTests/bin/Debug/net9.0/allure-results)" ]; then
-            mkdir -p allure-results
-            cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/
-          else
-            echo "No allure results found to copy or directory is empty"
-          fi
+          mkdir -p allure-results
+          cp -r tests/UnitTests/bin/Debug/net9.0/allure-results/* allure-results/
 
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
