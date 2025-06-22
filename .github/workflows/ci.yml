@@ -2,7 +2,7 @@ name: .NET Tests with Allure and GitHub Pages
 
 env:
   DOTNET_VERSION: '9.0'
-  RESULTS_DIR: ${{ github.workspace }}/tests/UnitTests/bin/Debug/net9.0/allure-results
+  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net9.0/allure-results
   REPORT_DIR: allure-report
 
 on:
@@ -10,8 +10,8 @@ on:
     branches: [ main, dev ]
 
 jobs:
-  build:
-    name: Build Project
+  build-test-report:
+    name: Build, Test and Generate Allure Report
     runs-on: ubuntu-latest
 
     steps:
@@ -25,22 +25,8 @@ jobs:
       - name: Build UnitTests project
         run: dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
 
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
       - name: Run tests and collect Allure results
-        run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug
+        run: dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug
 
       - name: List allure-results directory contents
         run: ls -la $RESULTS_DIR || echo "Directory not found"
@@ -57,31 +43,10 @@ jobs:
           find . -type d -name "allure-results"
           echo "::endgroup::"
 
-  generate-allure:
-    name: Generate Allure Report
-    runs-on: ubuntu-latest
-    needs: test
-    env:
-      RESULTS_DIR: ${{ github.workspace }}/tests/UnitTests/bin/Debug/net9.0/allure-results
-      REPORT_DIR: allure-report
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
       - name: Install Allure CLI
         run: |
           curl -sL https://github.com/allure-framework/allure2/releases/download/2.22.1/allure-2.22.1.tgz | tar -xz -C $HOME
           echo "$HOME/allure-2.22.1/bin" >> $GITHUB_PATH
-
-      - name: Debug current folder and results dir contents
-        run: |
-          pwd
-          ls -la $RESULTS_DIR || echo "Directory not found"
 
       - name: Generate Allure Report
         run: |
@@ -92,13 +57,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
-          path: $REPORT_DIR
+          path: ${{ env.REPORT_DIR }}
 
   deploy-report:
     name: Deploy to GitHub Pages
     if: success()
     runs-on: ubuntu-latest
-    needs: generate-allure
+    needs: build-test-report
 
     steps:
       - uses: actions/download-artifact@v4
