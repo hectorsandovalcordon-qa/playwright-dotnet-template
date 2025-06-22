@@ -40,8 +40,8 @@ jobs:
 
       - name: Run tests and collect Allure results
         run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj \
-            --no-build --configuration Debug
+          dotnet test ./tests/UnitTests/bin/Debug/net9.0/UnitTests.dll \
+            --no-build --logger "trx;LogFileName=test-results.trx"
 
       - name: List allure-results directory contents
         run: ls -la $RESULTS_DIR || echo "Directory not found"
