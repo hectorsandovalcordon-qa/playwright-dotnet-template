@@ -7,6 +7,9 @@ namespace UnitTests.Core.Drivers
     {
         [Fact]
         [AllureSubSuite("Chrome")]
+        [AllureFeature("Chrome Options")]
+        [AllureSeverity(Allure.Net.Commons.SeverityLevel.normal)]
+        [AllureOwner("TuNombre")]
         public void GetChromeOptions_ShouldContain_Maximized()
         {
             var opt = SeleniumDriverOptions.GetChromeOptions(headless: true);
@@ -16,6 +19,9 @@ namespace UnitTests.Core.Drivers
 
         [Fact]
         [AllureSubSuite("Firefox")]
+        [AllureFeature("Firefox Options")]
+        [AllureSeverity(Allure.Net.Commons.SeverityLevel.normal)]
+        [AllureOwner("TuNombre")]
         public void GetFirefoxOptions_ShouldContain_HeadlessFlag()
         {
             var options = SeleniumDriverOptions.GetFirefoxOptions(headless: true);
@@ -33,6 +39,9 @@ namespace UnitTests.Core.Drivers
 
         [Fact]
         [AllureSubSuite("Edge")]
+        [AllureFeature("Edge Options")]
+        [AllureSeverity(Allure.Net.Commons.SeverityLevel.normal)]
+        [AllureOwner("TuNombre")]
         public void GetEdgeOptions_ShouldContain_HeadlessFlag()
         {
             var opt = SeleniumDriverOptions.GetEdgeOptions(headless: true);

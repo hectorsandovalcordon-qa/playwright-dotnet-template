@@ -43,8 +43,10 @@ jobs:
           mkdir -p $RESULTS_DIR
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --no-build --configuration Debug \
-            --logger "Allure" \
+            --logger "trx;LogFileName=test-results.trx" \
             --results-directory $RESULTS_DIR
+          # El logger 'Allure' no es nativo, usa 'trx' para que coverlet u Allure pueda procesar resultados.
+          # Asegúrate que Allure.Xunit está configurado para generar archivos allure-results automáticamente.
 
       - name: List allure-results directory contents
         run: ls -la $RESULTS_DIR || echo "Directory not found"

@@ -7,6 +7,9 @@ namespace UnitTests.Core.Configuration
     {
         [Fact]
         [AllureSubSuite("Default Config")]
+        [AllureFeature("Settings Load")]
+        [AllureSeverity(Allure.Net.Commons.SeverityLevel.normal)]
+        [AllureOwner("TuNombre")]   // Opcional, para asignar responsable
         public void Settings_ShouldUse_Default_WhenEnvironmentMissing()
         {
             Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", null);
@@ -23,6 +26,9 @@ namespace UnitTests.Core.Configuration
 
         [Fact]
         [AllureSubSuite("Environment Override")]
+        [AllureFeature("Settings Load")]
+        [AllureSeverity(Allure.Net.Commons.SeverityLevel.critical)]
+        [AllureOwner("TuNombre")]  // Cambia por quien sea responsable del test
         public void Settings_ShouldOverride_WithEnvironment()
         {
             Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", "QA");
