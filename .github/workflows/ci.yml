@@ -46,6 +46,18 @@ jobs:
       - name: List allure-results directory contents
         run: ls -la $RESULTS_DIR || echo "Directory not found"
 
+      - name: Mostrar árbol de directorios del repo
+        run: |
+          echo "::group::Estructura del directorio completo"
+          find . -type d
+          echo "::endgroup::"
+
+      - name: Buscar carpeta allure-results en todo el proyecto
+        run: |
+          echo "::group::Resultados Allure encontrados en:"
+          find . -type d -name "allure-results"
+          echo "::endgroup::"
+
   generate-allure:
     name: Generate Allure Report
     runs-on: ubuntu-latest
