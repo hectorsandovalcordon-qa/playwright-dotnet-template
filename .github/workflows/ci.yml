@@ -2,7 +2,7 @@ name: .NET Tests with Allure and GitHub Pages
 
 env:
   DOTNET_VERSION: '9.0'
-  RESULTS_DIR: tests/UnitTests/bin/Debug/net9.0/allure-results
+  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net9.0/allure-results
   REPORT_DIR: allure-report
 
 on:
