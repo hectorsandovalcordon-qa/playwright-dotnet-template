@@ -42,6 +42,20 @@ jobs:
         run: |
           dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug
 
+      - name: List allure-results directory contents
+        run: ls -la $RESULTS_DIR || echo "Directory not found"
+
+      - name: Mostrar árbol de directorios del repo
+        run: |
+          echo "::group::Estructura del directorio completo"
+          find . -type d
+          echo "::endgroup::"
+
+      - name: Buscar carpeta allure-results en todo el proyecto
+        run: |
+          echo "::group::Resultados Allure encontrados en:"
+          find . -type d -name "allure-results"
+          echo "::endgroup::"
 
   generate-allure:
     name: Generate Allure Report
@@ -56,27 +70,15 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Checkout gh-pages branch for history
-        uses: actions/checkout@v3
-        with:
-          ref: gh-pages
-          path: gh-pages
-
       - name: Install Allure CLI
         run: |
           curl -sL https://github.com/allure-framework/allure2/releases/download/2.22.1/allure-2.22.1.tgz | tar -xz -C $HOME
           echo "$HOME/allure-2.22.1/bin" >> $GITHUB_PATH
 
-      - name: Copy allure history to results
-        run: |
-          if [ -d "gh-pages/allure-history" ]; then
-            cp -r gh-pages/allure-history $RESULTS_DIR/
-          fi
-
-      - name: Generate Allure Report with history
+      - name: Generate Allure Report
         run: |
           mkdir -p $REPORT_DIR
-          allure generate $RESULTS_DIR --clean --history $RESULTS_DIR/allure-history -o $REPORT_DIR
+          allure generate $RESULTS_DIR --clean -o $REPORT_DIR
 
       - name: Upload Allure report as artifact
         uses: actions/upload-artifact@v4
