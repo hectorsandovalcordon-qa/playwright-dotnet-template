@@ -1,9 +1,9 @@
 name: .NET Tests with Allure and GitHub Pages
 
 env:
-  DOTNET_VERSION: '9.0.x'
+  DOTNET_VERSION: '9.0'
   RESULTS_DIR: tests/UnitTests/bin/Debug/net9.0/allure-results
-  REPORT_DIR: tests/UnitTests/bin/Debug/net9.0/allure-report
+  REPORT_DIR: allure-report # usar un path simple para deploy limpio
 
 on:
   push:
@@ -30,7 +30,10 @@ jobs:
       - name: Run tests with Allure (dev)
         run: |
           mkdir -p $RESULTS_DIR
-          dotnet test ./tests/UnitTests/UnitTests.csproj --no-build --configuration Debug --logger "Allure;LogFileName=allure-results" --results-directory $RESULTS_DIR
+          dotnet test ./tests/UnitTests/UnitTests.csproj \
+            --no-build --configuration Debug \
+            --logger "trx;LogFileName=test-results.trx" \
+            --results-directory $RESULTS_DIR
 
   test-main:
     if: github.ref == 'refs/heads/main'
@@ -50,19 +53,25 @@ jobs:
       - name: Run tests with Allure (main)
         run: |
           mkdir -p $RESULTS_DIR
-          dotnet test ./tests/UnitTests/UnitTests.csproj --no-build --configuration Debug --logger "Allure;LogFileName=allure-results" --results-directory $RESULTS_DIR
+          dotnet test ./tests/UnitTests/UnitTests.csproj \
+            --no-build --configuration Debug \
+            --logger "trx;LogFileName=test-results.trx" \
+            --results-directory $RESULTS_DIR
 
       - name: Install Allure CLI
         run: |
-          curl -sL https://github.com/allure-framework/allure2/releases/latest/download/allure-2.22.1.tgz | tar -xz -C $HOME
+          curl -sL https://github.com/allure-framework/allure2/releases/download/2.22.1/allure-2.22.1.tgz | tar -xz -C $HOME
           echo "$HOME/allure-2.22.1/bin" >> $GITHUB_PATH
 
       - name: Generate Allure Report
-        run: allure generate $RESULTS_DIR --clean -o $REPORT_DIR
+        run: |
+          mkdir -p $REPORT_DIR
+          allure generate $RESULTS_DIR --clean -o $REPORT_DIR
 
       - name: Deploy Allure Report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: $REPORT_DIR
+          publish_dir: ${{ env.REPORT_DIR }}
           publish_branch: gh-pages
+          force_orphan: true
