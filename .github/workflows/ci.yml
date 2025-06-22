@@ -76,8 +76,8 @@ jobs:
           path: ${{ env.REPORT_DIR }}
 
   deploy-report:
-    name: Deploy to GitHub Pages (only on main)
-    if: github.base_ref == 'main'
+    name: Deploy to GitHub Pages
+    if: success()
     runs-on: ubuntu-latest
     needs: generate-allure
 
