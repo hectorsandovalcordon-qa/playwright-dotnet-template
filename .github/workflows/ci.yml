@@ -38,9 +38,6 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Add Allure.Xunit package (if not already added)
-        run: dotnet add ./tests/UnitTests/UnitTests.csproj package Allure.Xunit --version 2.17.3
-
       - name: Run tests and collect Allure results
         run: |
           mkdir -p $RESULTS_DIR
