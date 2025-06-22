@@ -46,6 +46,9 @@ jobs:
             --logger "trx;LogFileName=test-results.trx" \
             --results-directory $RESULTS_DIR
 
+      - name: List allure-results directory contents
+        run: ls -la $RESULTS_DIR || echo "Directory not found"
+
   generate-allure:
     name: Generate Allure Report
     runs-on: ubuntu-latest
