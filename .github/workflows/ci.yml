@@ -6,11 +6,10 @@ env:
   REPORT_DIR: allure-report # usar un path simple para deploy limpio
 
 on:
-  push:
+  pull_request:
     branches:
       - main
       - dev
-  pull_request:
 
 jobs:
   test-dev:
