@@ -1,4 +1,5 @@
-﻿using Core.Configuration;
+﻿using Allure.Xunit.Attributes.Steps;
+using Core.Configuration;
 
 namespace UnitTests.Core.Configuration
 {
