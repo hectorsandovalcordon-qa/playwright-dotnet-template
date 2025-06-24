@@ -1,12 +1,19 @@
+using Allure.Xunit.Attributes;
 using FluentAssertions;
 using Core.Configuration.Enums;
 using Core.Drivers;
 
-namespace Core.Tests
+namespace UnitTests.Core.Tests
 {
+    [AllureSuite("DriverFactory Tests")]
     public class DriverFactoryTests
     {
         [Fact(DisplayName = "Should throw when framework is unsupported")]
+        [AllureFeature("Driver Creation")]
+        [AllureSeverity(Allure.Net.Commons.SeverityLevel.critical)]
+        [AllureTag("exception", "negative")]
+        [AllureOwner("Héctor Sandoval")]
+        [AllureStory("Unsupported Framework")]
         public async Task Should_Throw_For_Unsupported_Framework()
         {
             // Arrange
