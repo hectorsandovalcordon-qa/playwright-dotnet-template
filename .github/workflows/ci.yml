@@ -4,6 +4,7 @@ env:
   DOTNET_VERSION: '8.0'
   RESULTS_DIR: ./tests/AllureXunitSample/bin/Debug/net8.0/allure-results
   REPORT_DIR: allure-report
+  BASE_HREF: '/playwright-dotnet-template/'  # Ajusta esto si el repo está en otra ruta
 
 on:
   pull_request:
@@ -51,6 +52,11 @@ jobs:
         run: |
           echo "Generating Allure report..."
           allure generate $(pwd)/${{ env.RESULTS_DIR }} --clean -o $(pwd)/${{ env.REPORT_DIR }}
+
+      - name: Inject base href into index.html
+        run: |
+          echo "Adding <base href=\"${{ env.BASE_HREF }}\"> to index.html"
+          sed -i "s|<head>|<head><base href=\"${{ env.BASE_HREF }}\">|" $(pwd)/${{ env.REPORT_DIR }}/index.html
 
       - name: Check generated report files
         run: |
