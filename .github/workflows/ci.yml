@@ -25,12 +25,12 @@ jobs:
 
       - name: Restore and Build UnitTests
         run: |
-          dotnet restore ./tests/UnitTests/UnitTests.csproj
-          dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
+          dotnet restore ./tests/AllureXunitSample/AllureXunitSample.csproj
+          dotnet build ./tests/AllureXunitSample/AllureXunitSample.csproj --configuration Debug
 
       - name: Run tests and collect Allure results
         run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug --logger:"console;verbosity=normal"
+          dotnet test ./tests/AllureXunitSample/AllureXunitSample.csproj --configuration Debug --logger:"console;verbosity=normal"
 
       - name: Mostrar árbol de directorios del repo
         run: |

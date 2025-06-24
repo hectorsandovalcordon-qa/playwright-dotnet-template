@@ -1,4 +1,4 @@
-﻿namespace UiTests;
+﻿namespace AllureXunitSample;
 
 public class UnitTest1
 {
