@@ -1,8 +1,8 @@
 name: .NET Tests with Allure in One Job
 
 env:
-  DOTNET_VERSION: '9.0'
-  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net9.0/allure-results
+  DOTNET_VERSION: '8.0'
+  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net8.0/allure-results
   REPORT_DIR: allure-report
 
 on:
