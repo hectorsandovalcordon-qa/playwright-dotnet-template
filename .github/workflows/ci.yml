@@ -1,18 +1,18 @@
-name: .NET Tests with Allure in One Job
+name: .NET Tests with Allure in 3 Jobs
 
 env:
   DOTNET_VERSION: '8.0'
   RESULTS_DIR: ./tests/UnitTests/bin/Debug/net8.0/allure-results
   REPORT_DIR: allure-report
-  BASE_HREF: '/playwright-dotnet-template/'  
+  BASE_HREF: '/playwright-dotnet-template/'
 
 on:
   pull_request:
     branches: [ main, dev ]
 
 jobs:
-  allure-tests:
-    name: Run Tests, Generate Allure Report, and Deploy
+  build:
+    name: Build Project
     runs-on: ubuntu-latest
 
     steps:
@@ -24,46 +24,74 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install Allure CLI
-        run: npm install -g allure-commandline --save-dev
-
-      - name: Restore and Build UnitTests
+      - name: Restore and Build
         run: |
           dotnet restore ./tests/UnitTests/UnitTests.csproj
           dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
-      
-      - name: Clean allure-results
-        run: |
-          echo "Cleaning allure-results directory..."
-          rm -rf ${{ env.RESULTS_DIR }}/*
-          echo "Listing after clean:"
-          ls -la ${{ env.RESULTS_DIR }} || echo "Directory does not exist yet"
 
-      - name: Run tests and collect Allure results
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: ./tests/UnitTests/bin/
+
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./tests/UnitTests/bin/
+
+      - name: Run Unit Tests and collect Allure results
         run: |
           dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug --logger:"console;verbosity=normal"
 
-      - name: Check allure-results files
-        run: |
-          echo "Listing files in allure-results:"
-          ls -la $(pwd)/${{ env.RESULTS_DIR }}
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: ${{ env.RESULTS_DIR }}
+
+  allure-report:
+    name: Generate and Deploy Allure Report
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Allure CLI
+        run: npm install -g allure-commandline --save-dev
+
+      - name: Download Allure Results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results
+          path: ${{ env.RESULTS_DIR }}
 
       - name: Generate Allure Report
         run: |
-          echo "Generating Allure report..."
           allure generate $(pwd)/${{ env.RESULTS_DIR }} --clean -o $(pwd)/${{ env.REPORT_DIR }}
 
-      - name: Inject base href into index.html
+      - name: Inject <base href> into report
         run: |
-          echo "Adding <base href=\"${{ env.BASE_HREF }}\"> to index.html"
-          sed -i "s|<head>|<head><base href=\"${{ env.BASE_HREF }}\">|" $(pwd)/${{ env.REPORT_DIR }}/index.html
+          sed -i "s|<head>|<head><base href='${{ env.BASE_HREF }}'>|" $(pwd)/${{ env.REPORT_DIR }}/index.html
 
-      - name: Check generated report files
-        run: |
-          echo "Listing files in allure-report:"
-          ls -la $(pwd)/${{ env.REPORT_DIR }}
-
-      - name: Deploy Allure Report to GitHub Pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
