@@ -8,6 +8,8 @@ env:
 on:
   pull_request:
     branches: [ main, dev ]
+  push:
+    branches: [ main ]
 
 jobs:
   allure-tests:
@@ -23,6 +25,9 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Install Allure CLI
+        run: npm install -g allure-commandline --save-dev
+
       - name: Restore and Build UnitTests
         run: |
           dotnet restore ./tests/AllureXunitSample/AllureXunitSample.csproj
@@ -32,43 +37,13 @@ jobs:
         run: |
           dotnet test ./tests/AllureXunitSample/AllureXunitSample.csproj --configuration Debug --logger:"console;verbosity=normal"
 
-      - name: Mostrar árbol de directorios del repo
+      - name: Generate Allure Report
         run: |
-          echo "::group::Estructura del directorio completo"
-          find . -type d | sort
-          echo "::endgroup::"
-
-      - name: Listar contenido de allure-results
-        run: |
-          echo "::group::Archivos en $RESULTS_DIR"
-          ls -la $RESULTS_DIR || echo "❌ No existe la carpeta de resultados"
-          echo "::endgroup::"
-
-      - name: Instalar Allure CLI
-        run: |
-          curl -sL https://github.com/allure-framework/allure2/releases/download/2.22.1/allure-2.22.1.tgz | tar -xz -C $HOME
-          echo "$HOME/allure-2.22.1/bin" >> $GITHUB_PATH
-
-      - name: Generar reporte Allure
-        run: |
-          mkdir -p $REPORT_DIR
-          if [ -d "$RESULTS_DIR" ]; then
-            allure generate $RESULTS_DIR --clean -o $REPORT_DIR
-          else
-            echo "❌ No se encontró $RESULTS_DIR, no se puede generar el reporte"
-            exit 1
-          fi
-
-      - name: Subir reporte Allure como artefacto
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-report
-          path: ${{ env.REPORT_DIR }}
+          allure generate ${{ env.RESULTS_DIR }} --clean -o ${{ env.REPORT_DIR }}
 
       - name: Deploy Allure Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ env.REPORT_DIR }}
-          publish_branch: gh-pages
-          force_orphan: true
