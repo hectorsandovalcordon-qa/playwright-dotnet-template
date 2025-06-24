@@ -2,9 +2,9 @@ name: .NET Tests with Allure in One Job
 
 env:
   DOTNET_VERSION: '8.0'
-  RESULTS_DIR: ./tests/AllureXunitSample/bin/Debug/net8.0/allure-results
+  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net8.0/allure-results
   REPORT_DIR: allure-report
-  BASE_HREF: '/playwright-dotnet-template/'  # Ajusta esto si el repo está en otra ruta
+  BASE_HREF: '/playwright-dotnet-template/'  
 
 on:
   pull_request:
