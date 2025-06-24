@@ -8,8 +8,6 @@ env:
 on:
   pull_request:
     branches: [ main, dev ]
-  push:
-    branches: [ main ]
 
 jobs:
   allure-tests:
@@ -32,14 +30,32 @@ jobs:
         run: |
           dotnet restore ./tests/AllureXunitSample/AllureXunitSample.csproj
           dotnet build ./tests/AllureXunitSample/AllureXunitSample.csproj --configuration Debug
+      
+      - name: Clean allure-results
+        run: |
+          echo "Cleaning allure-results directory..."
+          rm -rf ${{ env.RESULTS_DIR }}/*
+          echo "Listing after clean:"
+          ls -la ${{ env.RESULTS_DIR }} || echo "Directory does not exist yet"
 
       - name: Run tests and collect Allure results
         run: |
           dotnet test ./tests/AllureXunitSample/AllureXunitSample.csproj --configuration Debug --logger:"console;verbosity=normal"
 
+      - name: Check allure-results files
+        run: |
+          echo "Listing files in allure-results:"
+          ls -la $(pwd)/${{ env.RESULTS_DIR }}
+
       - name: Generate Allure Report
         run: |
-          allure generate ${{ env.RESULTS_DIR }} --clean -o ${{ env.REPORT_DIR }}
+          echo "Generating Allure report..."
+          allure generate $(pwd)/${{ env.RESULTS_DIR }} --clean -o $(pwd)/${{ env.REPORT_DIR }}
+
+      - name: Check generated report files
+        run: |
+          echo "Listing files in allure-report:"
+          ls -la $(pwd)/${{ env.REPORT_DIR }}
 
       - name: Deploy Allure Report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
