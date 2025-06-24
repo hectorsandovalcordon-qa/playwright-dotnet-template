@@ -1,0 +1,3 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Tue Jun 24 08:59:47 UTC 2025","Tue Jun 24 08:59:47 UTC 2025","13","","Demo Suite","","Tests.AllureSampleTests","Tests.AllureSampleTests.MySimpleTest","Tests.AllureSampleTests.MySimpleTest",""
+"passed","Tue Jun 24 08:59:47 UTC 2025","Tue Jun 24 08:59:48 UTC 2025","32","","","","AllureXunitSample.UnitTest1","AllureXunitSample.UnitTest1.Test1","AllureXunitSample.UnitTest1.Test1",""
