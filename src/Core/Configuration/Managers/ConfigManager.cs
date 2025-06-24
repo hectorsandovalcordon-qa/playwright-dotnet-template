@@ -4,32 +4,16 @@ namespace Core.Configuration
 {
     public static class ConfigManager
     {
-        private static IConfigurationRoot configuration;
-        private static TestSettings settings;
+        private static TestSettings? settings;
 
-        public static void Initialize(IConfigurationRoot config)
+        public static void Initialize(IConfiguration configuration)
         {
-            configuration = config ?? throw new ArgumentNullException(nameof(config));
-            settings = configuration.GetSection("TestSettings").Get<TestSettings>()
-                ?? throw new InvalidOperationException("No se pudo cargar 'TestSettings'.");
+            var section = configuration.GetSection("TestSettings");
+            settings = section.Get<TestSettings>()
+                ?? throw new InvalidOperationException("No se pudo cargar la sección 'TestSettings' desde configuración proporcionada.");
         }
 
-        static ConfigManager()
-        {
-            if (configuration == null)
-            {
-                var environment = Environment.GetEnvironmentVariable("TEST_ENVIRONMENT") ?? "Default";
-                var basePath = Directory.GetCurrentDirectory();
-                var builder = new ConfigurationBuilder()
-                    .SetBasePath(basePath)
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true);
-
-                configuration = builder.Build();
-                Initialize(configuration);
-            }
-        }
-
-        public static TestSettings Settings => settings;
+        public static TestSettings Settings =>
+            settings ?? throw new InvalidOperationException("ConfigManager no ha sido inicializado.");
     }
 }

@@ -2,7 +2,7 @@ using Core.Configuration;
 using Core.Configuration.Enums;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
-using Moq;
+using Xunit;
 
 namespace UnitTests.Core.Tests
 {
@@ -12,20 +12,19 @@ namespace UnitTests.Core.Tests
         public void Should_Load_Settings_From_Config()
         {
             // Arrange
-            var mockSection = new Mock<IConfigurationSection>();
-            mockSection.Setup(s => s.Get<TestSettings>())
-                .Returns(new TestSettings
-                {
-                    Browser = BrowserTypeEnum.Chrome,
-                    Framework = FrameworkTypeEnum.Playwright,
-                    Headless = true
-                });
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                {"TestSettings:Browser", "Chrome"},
+                {"TestSettings:Framework", "Playwright"},
+                {"TestSettings:Headless", "true"}
+            };
 
-            var mockConfig = new Mock<IConfigurationRoot>();
-            mockConfig.Setup(c => c.GetSection("TestSettings")).Returns(mockSection.Object);
+            IConfiguration config = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
 
             // Act
-            ConfigManager.Initialize(mockConfig.Object);
+            ConfigManager.Initialize(config);
             var result = ConfigManager.Settings;
 
             // Assert
