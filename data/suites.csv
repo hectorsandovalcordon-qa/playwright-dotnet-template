@@ -1,3 +1,3 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","33","Tests.AllureSampleTests.MySimpleTest","","Tue Jun 24 10:00:33 UTC 2025","passed","Tue Jun 24 10:00:33 UTC 2025","","Demo Suite","Tests.AllureSampleTests","Tests.AllureSampleTests.MySimpleTest"
-"","13","AllureXunitSample.UnitTest1.Test1","","Tue Jun 24 10:00:33 UTC 2025","passed","Tue Jun 24 10:00:33 UTC 2025","","","AllureXunitSample.UnitTest1","AllureXunitSample.UnitTest1.Test1"
+"","35","Tests.AllureSampleTests.MySimpleTest","","Tue Jun 24 10:17:08 UTC 2025","passed","Tue Jun 24 10:17:08 UTC 2025","","Demo Suite","Tests.AllureSampleTests","Tests.AllureSampleTests.MySimpleTest"
+"","13","AllureXunitSample.UnitTest1.Test1","","Tue Jun 24 10:17:08 UTC 2025","passed","Tue Jun 24 10:17:08 UTC 2025","","","AllureXunitSample.UnitTest1","AllureXunitSample.UnitTest1.Test1"
