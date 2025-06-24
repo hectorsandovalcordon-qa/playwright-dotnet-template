@@ -1,72 +1,98 @@
-name: CI with Allure Report
+name: .NET Tests with Allure in 3 Jobs
+
+env:
+  DOTNET_VERSION: '8.0'
+  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net8.0/allure-results
+  REPORT_DIR: allure-report
+  BASE_HREF: '/playwright-dotnet-template/'
 
 on:
-  push:
-    branches: [main, dev]
   pull_request:
-    branches: [main, dev]
+    branches: [ main, dev ]
 
 jobs:
-  build-and-test:
+  build:
+    name: Build Project
     runs-on: ubuntu-latest
 
-    env:
-      TEST_ENVIRONMENT: QA
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '9.0'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore and Build
+        run: |
+          dotnet restore ./tests/UnitTests/UnitTests.csproj
+          dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
 
-      - name: Build solution
-        run: dotnet build --configuration Debug --no-restore
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: ./tests/UnitTests/bin/
 
-      - name: Run Unit Tests
-        run: dotnet test ./tests/UnitTests/UnitTests.csproj --no-build --configuration Debug
-        continue-on-error: false
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs: build
 
-      - name: Upload Allure Results
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./tests/UnitTests/bin/
+
+      - name: Run Unit Tests and collect Allure results
+        run: |
+          dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug --logger:"console;verbosity=normal"
+
+      - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
-          path: tests/UnitTests/bin/Debug/net9.0/allure-results
-          
-  publish-allure:
+          path: ${{ env.RESULTS_DIR }}
+
+  allure-report:
+    name: Generate and Deploy Allure Report
     runs-on: ubuntu-latest
-    needs: build-and-test
-    if: ${{ needs.build-and-test.result == 'success' }}
+    needs: unit-tests
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: allure-results
-          path: allure-results
-
-      - name: Install Java
-        run: sudo apt-get install -y openjdk-11-jre
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Install Allure CLI
-        run: |
-          ALLURE_VERSION=2.21.0
-          wget https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.zip
-          unzip allure-${ALLURE_VERSION}.zip -d $HOME/.allure
-          echo "$HOME/.allure/allure-${ALLURE_VERSION}/bin" >> $GITHUB_PATH
+        run: npm install -g allure-commandline --save-dev
+
+      - name: Download Allure Results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results
+          path: ${{ env.RESULTS_DIR }}
 
       - name: Generate Allure Report
-        run: allure generate allure-results --clean -o allure-report
+        run: |
+          allure generate $(pwd)/${{ env.RESULTS_DIR }} --clean -o $(pwd)/${{ env.REPORT_DIR }}
+
+      - name: Inject <base href> into report
+        run: |
+          sed -i "s|<head>|<head><base href='${{ env.BASE_HREF }}'>|" $(pwd)/${{ env.REPORT_DIR }}/index.html
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
-          publish_branch: gh-pages
+          publish_dir: ${{ env.REPORT_DIR }}

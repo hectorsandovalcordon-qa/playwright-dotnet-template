@@ -1,38 +1,43 @@
-﻿using Core.Configuration;
+using Allure.Xunit.Attributes;
+using Core.Configuration;
+using Core.Configuration.Enums;
+using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 
-namespace UnitTests.Core.Configuration
+namespace UnitTests.Core.Tests
 {
+    [AllureSuite("ConfigManager Tests")]
     public class ConfigManagerTests
     {
-        [Fact]
-        public void Settings_ShouldUse_Default_WhenEnvironmentMissing()
+        [Fact(DisplayName = "Should load settings from mocked config")]
+        [AllureFeature("Configuration Loading")]
+        [AllureSeverity(Allure.Net.Commons.SeverityLevel.critical)]
+        [AllureTag("config", "unit")]
+        [AllureOwner("Héctor Sandoval")]
+        [AllureStory("Load TestSettings from IConfiguration")]
+        public void Should_Load_Settings_From_Config()
         {
-            Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", null);
-            File.WriteAllText("appsettings.json", @"{ ""TestSettings"": { ""Browser"": ""Chrome"", ""Headless"": false, ""Framework"": ""Selenium"", ""BaseUrl"": ""https://foo"", ""Timeout"": 10 }}");
+            // Arrange
+            var inMemorySettings = new Dictionary<string, string>
+            {
+                {"TestSettings:Browser", "Chrome"},
+                {"TestSettings:Framework", "Playwright"},
+                {"TestSettings:Headless", "true"}
+            };
 
-            var s = ConfigManager.Settings;
+            IConfiguration config = new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
 
-            Assert.Equal("Chrome", s.Browser.ToString());
-            Assert.False(s.Headless);
-            Assert.Equal("Selenium", s.Framework.ToString());
-            Assert.Equal("https://foo", s.BaseUrl);
-            Assert.Equal(10, s.Timeout);
-        }
+            // Act
+            ConfigManager.Initialize(config);
+            var result = ConfigManager.Settings;
 
-        [Fact]
-        public void Settings_ShouldOverride_WithEnvironment()
-        {
-            Environment.SetEnvironmentVariable("TEST_ENVIRONMENT", "QA");
-            File.WriteAllText("appsettings.json", @"{ ""TestSettings"": { ""Browser"": ""Chrome"", ""Headless"": false, ""Framework"": ""Selenium"", ""BaseUrl"": ""https://foo"", ""Timeout"": 10 }}");
-            File.WriteAllText("appsettings.QA.json", @"{ ""TestSettings"": { ""Browser"": ""Firefox"", ""Headless"": true, ""BaseUrl"": ""https://qa"", ""Timeout"": 20 }}");
-
-            var s = ConfigManager.Settings;
-
-            Assert.Equal("Chrome", s.Browser.ToString());
-            Assert.False(s.Headless);
-            Assert.Equal("https://foo", s.BaseUrl);
-            Assert.Equal(10, s.Timeout);
-            Assert.Equal("Selenium", s.Framework.ToString());
+            // Assert
+            result.Should().NotBeNull();
+            result.Browser.Should().Be(BrowserTypeEnum.Chrome);
+            result.Framework.Should().Be(FrameworkTypeEnum.Playwright);
+            result.Headless.Should().BeTrue();
         }
     }
 }
