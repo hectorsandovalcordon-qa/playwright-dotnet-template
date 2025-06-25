@@ -88,6 +88,17 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Ensure shell and working directory
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bash coreutils
+          mkdir -p /home/runner/work/playwright-dotnet-template/playwright-dotnet-template/src
+
+      - name: Check shell and working directory
+        run: |
+          which sh
+          ls -la /home/runner/work/playwright-dotnet-template/playwright-dotnet-template/src
+
       - name: Install SonarScanner for .NET
         run: dotnet tool install --global dotnet-sonarscanner
 
@@ -105,4 +116,3 @@ jobs:
           dotnet build ./src/playwright-dotnet-template.csproj --configuration Debug
 
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
