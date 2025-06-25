@@ -59,8 +59,10 @@ jobs:
             /d:sonar.sources=./src \
             /d:sonar.exclusions=**/.github/**,**/tests/**,**/bin/**,**/obj/** \
             /d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml \
-            /d:sonar.verbose=true
-
+            /d:sonar.verbose=true \
+            /d:sonar.pullrequest.key="${{ github.event.pull_request.number }}" \
+            /d:sonar.pullrequest.branch="${{ github.head_ref }}" \
+            /d:sonar.pullrequest.base="${{ github.base_ref }}"
 
       - name: Run Unit Tests with Code Coverage
         run: |
