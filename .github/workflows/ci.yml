@@ -26,14 +26,14 @@ jobs:
 
       - name: Restore and Build
         run: |
-          dotnet restore ./tests/UnitTests/UnitTests.csproj
-          dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
+          dotnet restore ./src/playwright-dotnet-template.csproj
+          dotnet build ./src/playwright-dotnet-template.csproj --configuration Debug
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: ./tests/UnitTests/bin/
+          path: ./src/bin/
 
   unit-tests:
     name: Run Unit Tests with Coverage
@@ -53,7 +53,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-output
-          path: ./tests/UnitTests/bin/
+          path: ./src/bin/
 
       - name: Run Unit Tests with Code Coverage
         run: |
@@ -92,7 +92,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-output
-          path: ./tests/UnitTests/bin/
+          path: ./src/bin/
 
       - name: Download coverage report
         uses: actions/download-artifact@v4
