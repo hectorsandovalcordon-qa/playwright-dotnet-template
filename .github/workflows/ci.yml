@@ -52,14 +52,16 @@ jobs:
             /k:"hectorsandovalcordon-qa_playwright-dotnet-template" \
             /o:"hectorsandovalcordon-qa" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.host.url="https://sonarcloud.io"
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
 
       - name: Run Unit Tests with Code Coverage
         run: |
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --configuration Debug \
             --collect:"XPlat Code Coverage" \
-            --results-directory ./TestResults
+            /p:CoverletOutputFormat=opencover \
+            /p:CoverletOutput=./TestResults/coverage.opencover.xml
 
       - name: SonarCloud Scan End
         env:
@@ -72,35 +74,3 @@ jobs:
         with:
           name: allure-results
           path: ${{ env.RESULTS_DIR }}
-
-  allure-report:
-    name: Generate and Deploy Allure Report
-    runs-on: ubuntu-latest
-    needs: unit-tests-and-sonar
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Allure CLI
-        run: npm install -g allure-commandline --save-dev
-
-      - name: Download Allure Results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results
-          path: ${{ env.RESULTS_DIR }}
-
-      - name: Generate Allure Report
-        run: |
-          allure generate ${{ env.RESULTS_DIR }} --clean -o ${{ env.REPORT_DIR }}
-
-      - name: Inject <base href> into report
-        run: |
-          sed -i "s|<head>|<head><base href='${{ env.BASE_HREF }}'>|" ${{ env.REPORT_DIR }}/index.html
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ env.REPORT_DIR }}
