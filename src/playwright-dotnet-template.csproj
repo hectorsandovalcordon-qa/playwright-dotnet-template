@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>playwright_dotnet_template</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Referencias a paquetes NuGet -->
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.6" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.37.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.11.0" />
+    <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="115.0.5790.1700" />
+    <PackageReference Include="Selenium.WebDriver.GeckoDriver" Version="0.32.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Archivos de código fuente -->
+    <Compile Include="Core\**\*.cs" />
+    <Compile Include="Drivers\**\*.cs" />
+    <Compile Include="Pages\BasePage.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Archivos de configuración -->
+    <None Include="appSettings.json" />
+    <None Include="appSettings.PROD.json" />
+    <None Include="appSettings.QA.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Usings globales -->
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>
