@@ -1,4 +1,4 @@
-name: .NET Tests with Allure in 3 Jobs
+name: CI/CD
 
 env:
   DOTNET_VERSION: '8.0'
@@ -36,7 +36,7 @@ jobs:
           path: ./tests/UnitTests/bin/
 
   unit-tests:
-    name: Run Unit Tests
+    name: Run Unit Tests with Coverage
     runs-on: ubuntu-latest
     needs: build
 
@@ -55,9 +55,12 @@ jobs:
           name: build-output
           path: ./tests/UnitTests/bin/
 
-      - name: Run Unit Tests and collect Allure results
+      - name: Run Unit Tests with Code Coverage
         run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug --logger:"console;verbosity=normal"
+          dotnet test ./tests/UnitTests/UnitTests.csproj \
+            --configuration Debug \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults
 
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
@@ -65,10 +68,62 @@ jobs:
           name: allure-results
           path: ${{ env.RESULTS_DIR }}
 
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./TestResults
+
+  sonarqube-analysis:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./tests/UnitTests/bin/
+
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: ./TestResults
+
+      - name: Install dotnet-sonarscanner tool
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Run SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PATH: ${{ env.PATH }}:/home/runner/.dotnet/tools
+        run: |
+          dotnet sonarscanner begin \
+            /k:"hectorsandovalcordon-qa_playwright-dotnet-template" \
+            /o:"hectorsandovalcordon-qa" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths=./TestResults/*/coverage.opencover.xml \
+            /d:sonar.qualitygate.wait=true
+
+          dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
+
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
   allure-report:
     name: Generate and Deploy Allure Report
     runs-on: ubuntu-latest
-    needs: unit-tests
+    needs: sonarqube-analysis
 
     steps:
       - name: Checkout code
