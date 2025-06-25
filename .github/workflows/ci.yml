@@ -116,7 +116,7 @@ jobs:
             /d:sonar.cs.opencover.reportsPaths=./TestResults/*/coverage.opencover.xml \
             /d:sonar.qualitygate.wait=true
 
-          dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
+          dotnet build ./src/playwright-dotnet-template.csproj --configuration Debug
 
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
