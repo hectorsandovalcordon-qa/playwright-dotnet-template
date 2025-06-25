@@ -24,6 +24,17 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: SonarCloud Scan Begin
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin \
+            /k:"hectorsandovalcordon-qa_playwright-dotnet-template" \
+            /o:"hectorsandovalcordon-qa" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io"
+
       - name: Restore and Build
         run: |
           dotnet restore ./src/playwright-dotnet-template.csproj
@@ -35,6 +46,12 @@ jobs:
             --configuration Debug \
             --collect:"XPlat Code Coverage" \
             --results-directory ./TestResults
+
+      - name: SonarCloud Scan End
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
@@ -73,46 +90,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ${{ env.REPORT_DIR }}
-
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-    needs: build-and-test
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Ensure shell and working directory
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y bash coreutils
-          mkdir -p /home/runner/work/playwright-dotnet-template/playwright-dotnet-template/src
-
-      - name: Check shell and working directory
-        run: |
-          which sh
-          ls -la /home/runner/work/playwright-dotnet-template/playwright-dotnet-template/src
-
-      - name: Install SonarScanner for .NET
-        run: dotnet tool install --global dotnet-sonarscanner
-
-      - name: Run SonarCloud Analysis
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          PATH: ${{ env.PATH }}:/home/runner/.dotnet/tools
-        run: |
-          dotnet sonarscanner begin \
-            /k:"hectorsandovalcordon-qa_playwright-dotnet-template" \
-            /o:"hectorsandovalcordon-qa" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.host.url="https://sonarcloud.io"
-
-          dotnet build ./src/playwright-dotnet-template.csproj --configuration Debug
-
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
