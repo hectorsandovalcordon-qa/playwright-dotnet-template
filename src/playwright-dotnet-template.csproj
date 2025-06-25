@@ -32,9 +32,7 @@
 
   <ItemGroup>
     <!-- Archivos de configuración -->
-    <None Include="appSettings.json" />
-    <None Include="appSettings.PROD.json" />
-    <None Include="appSettings.QA.json" />
+    <None Include="Settings/*.json" />
   </ItemGroup>
 
   <ItemGroup>
