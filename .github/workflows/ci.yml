@@ -53,7 +53,8 @@ jobs:
             /o:"hectorsandovalcordon-qa" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
+            /d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml \
+            /d:sonar.verbose=true
 
       - name: Run Unit Tests with Code Coverage
         run: |
@@ -63,14 +64,11 @@ jobs:
             /p:CoverletOutputFormat=opencover \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml
 
+      - name: Verify Coverage Report
+        run: ls ./TestResults
+
       - name: SonarCloud Scan End
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-      - name: Upload Allure Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results
-          path: ${{ env.RESULTS_DIR }}
