@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Allure.Xunit.Attributes;
 using Core.Configuration;
 using Core.Configuration.Enums;
