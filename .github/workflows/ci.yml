@@ -123,7 +123,6 @@ jobs:
             /d:sonar.cs.opencover.reportsPaths=./TestResults/*/coverage.opencover.xml \
             /d:sonar.qualitygate.wait=true
 
-          # Vuelve a compilar el proyecto para análisis con código fuente completo
           dotnet build ./src/playwright-dotnet-template.csproj --configuration Debug
 
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
