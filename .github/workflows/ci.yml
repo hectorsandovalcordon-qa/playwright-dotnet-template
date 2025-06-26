@@ -43,6 +43,9 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Install Coverlet Collector
+        run: dotnet add ./tests/UnitTests/UnitTests.csproj package coverlet.collector
+
       - name: Create TestResults Directory
         run: mkdir -p ./TestResults
 
@@ -68,15 +71,20 @@ jobs:
         run: |
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --configuration Debug \
+            --verbosity detailed \
             /p:CollectCoverage=true \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml \
             /p:CoverletOutputFormat=opencover
 
-
       - name: Verify Coverage Report
         run: |
           ls -la ./TestResults
-          head -n 20 ./TestResults/coverage.opencover.xml
+          if [ -f ./TestResults/coverage.opencover.xml ]; then
+            head -n 20 ./TestResults/coverage.opencover.xml
+          else
+            echo "❌ Error: El archivo de cobertura no se generó correctamente."
+            exit 1
+          fi
 
       - name: SonarCloud Scan End
         env:
