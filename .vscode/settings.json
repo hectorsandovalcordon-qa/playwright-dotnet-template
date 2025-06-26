@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "hectorsandovalcordon-qa",
+        "projectKey": "hectorsandovalcordon-qa_playwright-dotnet-template"
+    }
+}

@@ -2,6 +2,8 @@ using Allure.Xunit.Attributes;
 using FluentAssertions;
 using Core.Configuration.Enums;
 using Core.Drivers;
+using System.Threading.Tasks;
+using System;
 
 namespace UnitTests.Core.Tests
 {
