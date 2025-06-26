@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +29,11 @@
   <ItemGroup>
     <!-- Archivos de configuración -->
     <None Include="Settings/*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Core\**\*.cs" />
+    <Compile Include="Pages\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
