@@ -43,10 +43,6 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install Required Workloads
-        run: |
-          dotnet workload install
-
       - name: Verify .NET SDK Installation
         run: dotnet --info
 
