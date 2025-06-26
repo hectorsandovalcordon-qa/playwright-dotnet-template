@@ -1,3 +1,3 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","52","Should throw when framework is unsupported","","Wed Jun 25 13:19:34 UTC 2025","passed","Wed Jun 25 13:19:34 UTC 2025","","DriverFactory Tests","UnitTests.Core.Tests.DriverFactoryTests","Should throw when framework is unsupported"
-"","31","Should load settings from mocked config","","Wed Jun 25 13:19:34 UTC 2025","passed","Wed Jun 25 13:19:34 UTC 2025","","ConfigManager Tests","UnitTests.Core.Tests.ConfigManagerTests","Should load settings from mocked config"
+"","28","Should load settings from mocked config","","Thu Jun 26 14:03:46 UTC 2025","passed","Thu Jun 26 14:03:46 UTC 2025","","ConfigManager Tests","UnitTests.Core.Tests.ConfigManagerTests","Should load settings from mocked config"
+"","106","Should throw when framework is unsupported","","Thu Jun 26 14:03:46 UTC 2025","passed","Thu Jun 26 14:03:46 UTC 2025","","DriverFactory Tests","UnitTests.Core.Tests.DriverFactoryTests","Should throw when framework is unsupported"
