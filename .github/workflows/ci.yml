@@ -51,8 +51,11 @@ jobs:
         run: |
           sonar-scanner \
             -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template \
-            -Dsonar.organization=hectorsandovalcordon-qa \
+            -Dsonar.organization=your_organization \
             -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
+            -Dsonar.pullrequest.branch=${{ github.head_ref }} \
+            -Dsonar.pullrequest.base=${{ github.base_ref }} \
             -Dsonar.sources=src \
             -Dsonar.exclusions=**/bin/**,**/obj/** \
             -Dsonar.cs.opencover.reportsPaths=tests/UnitTests/TestResults/**/coverage.cobertura.xml
