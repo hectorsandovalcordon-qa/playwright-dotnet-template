@@ -1,12 +1,74 @@
-name: SonarCloud Analysis
+name: .NET Tests with Allure and SonarCloud
+
+env:
+  DOTNET_VERSION: '8.0'
+  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net8.0/allure-results
+  REPORT_DIR: allure-report
+  BASE_HREF: '/playwright-dotnet-template/'
 
 on:
   pull_request:
     branches: [ main, dev ]
 
 jobs:
-  sonarcloud:
+  build:
+    name: Build Project
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore and Build
+        run: |
+          dotnet restore ./tests/UnitTests/UnitTests.csproj
+          dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: ./tests/UnitTests/bin/
+
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./tests/UnitTests/bin/
+
+      - name: Run Unit Tests and collect Allure results
+        run: |
+          dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug --logger:"console;verbosity=normal"
+
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: ${{ env.RESULTS_DIR }}
+
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs: build
 
     steps:
       - name: Checkout code
@@ -23,27 +85,10 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install dependencies
         run: dotnet restore
-
-      - name: Build project
-        run: dotnet build --no-restore
-
-      - name: Run tests with coverage
-        run: |
-          dotnet test tests/UnitTests --collect:"XPlat Code Coverage" \
-            /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=./TestResults/coverage.opencover.xml
-          echo "Verifying coverage file in UnitTests project..."
-          find tests/UnitTests/TestResults -name "coverage.cobertura.xml" || echo "No coverage file found!"
-
-      - name: Install SonarScanner
-        run: |
-          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner.zip -d $HOME
-          echo "$HOME/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
 
       - name: Run SonarScanner
         env:
@@ -60,3 +105,34 @@ jobs:
             -Dsonar.exclusions=**/bin/**,**/obj/** \
             -Dsonar.cs.opencover.reportsPaths=tests/UnitTests/TestResults/**/coverage.cobertura.xml
 
+  allure-report:
+    name: Generate and Deploy Allure Report
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Allure CLI
+        run: npm install -g allure-commandline --save-dev
+
+      - name: Download Allure Results
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results
+          path: ${{ env.RESULTS_DIR }}
+
+      - name: Generate Allure Report
+        run: |
+          allure generate $(pwd)/${{ env.RESULTS_DIR }} --clean -o $(pwd)/${{ env.REPORT_DIR }}
+
+      - name: Inject <base href> into report
+        run: |
+          sed -i "s|<head>|<head><base href='${{ env.BASE_HREF }}'>|" $(pwd)/${{ env.REPORT_DIR }}/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.REPORT_DIR }}
