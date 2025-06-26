@@ -66,15 +66,23 @@ jobs:
             /d:sonar.pullrequest.key="${{ github.event.pull_request.number }}" \
             /d:sonar.pullrequest.branch="${{ github.head_ref }}" \
             /d:sonar.pullrequest.base="${{ github.base_ref }}"
+      
+      - name: Verify Coverlet Installation
+        run: dotnet list ./tests/UnitTests/UnitTests.csproj package
 
-      - name: Run Unit Tests with Code Coverage
+      - name: Run Unit Tests with Detailed Logs
         run: |
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --configuration Debug \
+            --verbosity detailed \
             /p:CollectCoverage=true \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml \
             /p:CoverletOutputFormat=opencover \
             /p:Exclude="[*Tests]*"
+
+      - name: Search for Coverage File
+        run: find . -name "coverage.opencover.xml"
+
 
       - name: Verify Coverage Report
         run: |
