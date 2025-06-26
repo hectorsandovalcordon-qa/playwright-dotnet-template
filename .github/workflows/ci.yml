@@ -48,6 +48,7 @@ jobs:
           sonar-scanner \
             -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template \
             -Dsonar.organization=hectorsandovalcordon-qa \
+            -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=src \
             -Dsonar.exclusions=**/bin/**,**/obj/** \
             -Dsonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
