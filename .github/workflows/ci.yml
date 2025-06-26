@@ -69,24 +69,24 @@ jobs:
             /d:sonar.pullrequest.key="${{ github.event.pull_request.number }}" \
             /d:sonar.pullrequest.branch="${{ github.head_ref }}" \
             /d:sonar.pullrequest.base="${{ github.base_ref }}"
-      
-      - name: Verify Coverlet Installation
-        run: dotnet list ./tests/UnitTests/UnitTests.csproj package
 
-      - name: List Detected Tests
-        run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj --list-tests
-
-      - name: Run Unit Tests with LCOV Coverage
+      - name: Run Unit Tests with Coverage
         run: |
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --configuration Debug \
             /p:CollectCoverage=true \
-            /p:CoverletOutput=./TestResults/coverage.lcov \
-            /p:CoverletOutputFormat=lcov
+            /p:CoverletOutput=./TestResults/coverage.opencover.xml \
+            /p:CoverletOutputFormat=opencover
 
-      - name: Search for Coverage File
-        run: find . -name "coverage.lcov"
+      - name: Verify Coverage Report
+        run: |
+          ls -la ./TestResults
+          if [ -f ./TestResults/coverage.opencover.xml ]; then
+            head -n 20 ./TestResults/coverage.opencover.xml
+          else
+            echo "❌ Error: El archivo de cobertura no se generó correctamente."
+            exit 1
+          fi
 
       - name: SonarCloud Scan End
         env:
