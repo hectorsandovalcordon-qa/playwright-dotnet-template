@@ -69,11 +69,14 @@ jobs:
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --configuration Debug \
             --collect:"XPlat Code Coverage" \
-            /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=./TestResults/coverage.opencover.xml
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=./TestResults/coverage \
+            /p:CoverletOutputFormat=opencover
 
       - name: Verify Coverage Report
-        run: ls ./TestResults
+        run: |
+          ls -la ./TestResults
+          head -n 20 ./TestResults/coverage.opencover.xml
 
       - name: SonarCloud Scan End
         env:
