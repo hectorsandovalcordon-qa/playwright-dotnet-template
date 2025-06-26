@@ -69,12 +69,12 @@ jobs:
 
       - name: Run Unit Tests with Code Coverage
         run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj \
-            --configuration Debug \
-            --verbosity detailed \
+          dotnet test **/*.UnitTests/*.csproj \
+            --configuration ${{ env.DOTNET_VERSION }} \
             /p:CollectCoverage=true \
-            /p:CoverletOutput=./TestResults/coverage.opencover.xml \
-            /p:CoverletOutputFormat=opencover
+            /p:CoverletOutput=${{ github.workspace }}/coverage \
+            /p:CoverletOutputFormat=opencover \
+            /p:Exclude="[*Tests]*"
 
       - name: Verify Coverage Report
         run: |
