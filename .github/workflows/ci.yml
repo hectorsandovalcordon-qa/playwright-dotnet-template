@@ -29,13 +29,21 @@ jobs:
       - name: Build project
         run: dotnet build --no-restore
 
+      - name: List compiled files
+        run: |
+          echo "Listing compiled files in src/bin/Debug:"
+          ls -R src/bin/Debug || echo "No files found in src/bin/Debug"
+          echo "Listing compiled files in tests/UnitTests/bin/Debug:"
+          ls -R tests/UnitTests/bin/Debug || echo "No files found in tests/UnitTests/bin/Debug"
+
       - name: Run tests with coverage
         run: |
-          dotnet test --no-build --collect:"XPlat Code Coverage" \
+          dotnet test --collect:"XPlat Code Coverage" \
             /p:CoverletOutputFormat=opencover \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml
-          echo "Verifying coverage files..."
-          find . -name "coverage.opencover.xml" || echo "No coverage file found!"
+          echo "Verifying coverage file..."
+          ls -la ./TestResults
+          cat ./TestResults/coverage.opencover.xml || echo "Coverage file is empty or missing!"
 
       - name: Install SonarScanner
         run: |
@@ -53,4 +61,4 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=src \
             -Dsonar.exclusions=**/bin/**,**/obj/** \
-            -Dsonar.cs.opencover.reportsPaths=$(find . -name "coverage.opencover.xml" | head -n 1)
+            -Dsonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
