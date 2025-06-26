@@ -57,13 +57,23 @@ jobs:
 
       - name: Run Unit Tests and collect Allure results
         run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug --logger:"console;verbosity=normal"
+          dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug \
+            --logger:"console;verbosity=normal" \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=cobertura \
+            /p:CoverletOutput=./tests/UnitTests/TestResults/coverage.cobertura.xml
 
       - name: Upload Allure results
         uses: actions/upload-artifact@v4
         with:
           name: allure-results
           path: ${{ env.RESULTS_DIR }}
+
+      - name: Upload Coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-results
+          path: ./tests/UnitTests/TestResults/coverage.cobertura.xml
 
   sonarcloud:
     name: SonarCloud Analysis
