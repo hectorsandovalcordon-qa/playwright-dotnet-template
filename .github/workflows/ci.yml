@@ -81,8 +81,7 @@ jobs:
             /p:CollectCoverage=true \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml \
             /p:CoverletOutputFormat=opencover \
-            /p:CoverletDebug=true \
-            /p:Exclude="[*Tests]*"
+            /p:CoverletDebug=true
 
       - name: Search for Coverage File
         run: find . -name "coverage.opencover.xml"
