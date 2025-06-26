@@ -73,6 +73,10 @@ jobs:
       - name: Verify Coverlet Installation
         run: dotnet list ./tests/UnitTests/UnitTests.csproj package
 
+      - name: List Detected Tests
+        run: |
+          dotnet test ./tests/UnitTests/UnitTests.csproj --list-tests
+
       - name: Run Unit Tests with Coverlet Debug Logs
         run: |
           dotnet test ./tests/UnitTests/UnitTests.csproj \
@@ -82,7 +86,6 @@ jobs:
             /p:CoverletOutput=./TestResults/coverage.opencover.xml \
             /p:CoverletOutputFormat=opencover \
             /p:CoverletDebug=true | grep "Coverlet"
-
 
       - name: Search for Coverage File
         run: find . -name "coverage.opencover.xml"
@@ -96,6 +99,14 @@ jobs:
             echo "❌ Error: El archivo de cobertura no se generó correctamente."
             exit 1
           fi
+
+      - name: Run Unit Tests with LCOV Coverage
+        run: |
+          dotnet test ./tests/UnitTests/UnitTests.csproj \
+            --configuration Debug \
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=./TestResults/coverage.lcov \
+            /p:CoverletOutputFormat=lcov
 
       - name: SonarCloud Scan End
         env:
