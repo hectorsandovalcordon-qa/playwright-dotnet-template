@@ -2,7 +2,8 @@ name: SonarCloud Analysis
 
 on:
   pull_request:
-    branches: [ main, dev ]
+    branches:
+      - main
 
 jobs:
   sonarcloud:
@@ -35,16 +36,19 @@ jobs:
             /p:CoverletOutputFormat=opencover \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v1.6
-        with:
-          projectBaseDir: ./src
-          args: >
-            -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template
-            -Dsonar.organization=hectorsandovalcordon-qa
-            -Dsonar.sources=src
-            -Dsonar.exclusions=**/bin/**,**/obj/**
-            -Dsonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
+      - name: Install SonarScanner
+        run: |
+          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip -d $HOME
+          export PATH="$HOME/sonar-scanner-5.0.1.3006-linux/bin:$PATH"
+
+      - name: Run SonarScanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template \
+            -Dsonar.organization=hectorsandovalcordon-qa \
+            -Dsonar.sources=src \
+            -Dsonar.exclusions=**/bin/**,**/obj/** \
+            -Dsonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
