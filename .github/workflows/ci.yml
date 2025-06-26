@@ -1,8 +1,12 @@
 name: SonarCloud Analysis
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
-    branches: [ main, dev ]
+    branches:
+      - main
 
 jobs:
   sonarcloud:
@@ -12,37 +16,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0'
 
-      - name: Install dependencies
+      - name: Restore dependencies
         run: dotnet restore
 
       - name: Build project
         run: dotnet build --no-restore
 
-      - name: List files in Core and Pages
-        run: |
-          echo "Listing files in Core:"
-          ls -R src/Core || echo "No files found in Core"
-          echo "Listing files in Pages:"
-          ls -R src/Pages || echo "No files found in Pages"
-
       - name: Run tests with coverage
         run: |
-          dotnet test tests/UnitTests --collect:"XPlat Code Coverage" \
+          dotnet test --collect:"XPlat Code Coverage" \
             /p:CoverletOutputFormat=opencover \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml
-          echo "Verifying coverage file in UnitTests project..."
-          find tests/UnitTests/TestResults -name "coverage.cobertura.xml" || echo "No coverage file found!"
 
       - name: Install SonarScanner
         run: |
@@ -55,9 +44,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template \
-            -Dsonar.organization=hectorsandovalcordon-qa \
+            -Dsonar.projectKey=your_project_key \
+            -Dsonar.organization=your_organization \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.sources=src/Core,src/Pages,src/Settings \
-            -Dsonar.exclusions=**/bin/**,**/obj/** \
-            -Dsonar.cs.opencover.reportsPaths=tests/UnitTests/TestResults/**/coverage.cobertura.xml
+            -Dsonar.sources=src \
+            -Dsonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
