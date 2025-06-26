@@ -29,6 +29,13 @@ jobs:
       - name: Build project
         run: dotnet build --no-restore
 
+      - name: List files in Core and Pages
+        run: |
+          echo "Listing files in Core:"
+          ls -R src/Core || echo "No files found in Core"
+          echo "Listing files in Pages:"
+          ls -R src/Pages || echo "No files found in Pages"
+
       - name: Run tests with coverage
         run: |
           dotnet test tests/UnitTests --collect:"XPlat Code Coverage" \
@@ -51,6 +58,6 @@ jobs:
             -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template \
             -Dsonar.organization=hectorsandovalcordon-qa \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.sources=src \
-            -Dsonar.exclusions=**/TestResults/**/*.xml \
+            -Dsonar.sources=src/Core,src/Pages,src/Settings \
+            -Dsonar.exclusions=**/bin/**,**/obj/** \
             -Dsonar.cs.opencover.reportsPaths=tests/UnitTests/TestResults/**/coverage.cobertura.xml
