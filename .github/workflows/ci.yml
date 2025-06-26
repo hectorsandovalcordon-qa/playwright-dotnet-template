@@ -63,13 +63,12 @@ jobs:
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.projectBaseDir=/home/runner/work/playwright-dotnet-template/playwright-dotnet-template \
-            /d:sonar.exclusions=**/.github/**,**/tests/**,**/bin/**,**/obj/**,**/allureConfig.json \
+            /d:sonar.inclusions=src/**/* \
             /d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml \
             /d:sonar.verbose=true \
             /d:sonar.pullrequest.key="${{ github.event.pull_request.number }}" \
             /d:sonar.pullrequest.branch="${{ github.head_ref }}" \
             /d:sonar.pullrequest.base="${{ github.base_ref }}"
-
 
       - name: Run Unit Tests with Coverage
         run: |
