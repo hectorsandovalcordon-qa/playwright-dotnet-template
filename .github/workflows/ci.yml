@@ -86,7 +86,7 @@ jobs:
             /p:CoverletOutputFormat=lcov
 
       - name: Search for Coverage File
-        run: find . -name "coverage.opencover.xml"
+        run: find . -name "coverage.lcov"
 
       - name: SonarCloud Scan End
         env:
