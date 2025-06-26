@@ -47,3 +47,4 @@ jobs:
             -Dsonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk
