@@ -52,5 +52,5 @@ jobs:
             -Dsonar.organization=hectorsandovalcordon-qa \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.sources=src \
-            -Dsonar.exclusions=**/bin/**,**/obj/**,**/TestResults/**/*.xml \
+            -Dsonar.exclusions=**/TestResults/**/*.xml \
             -Dsonar.cs.opencover.reportsPaths=tests/UnitTests/TestResults/**/coverage.cobertura.xml
