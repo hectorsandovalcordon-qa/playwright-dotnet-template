@@ -35,7 +35,7 @@ jobs:
             /p:CoverletOutputFormat=opencover \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml
           echo "Verifying coverage file in UnitTests project..."
-          ls -R tests/UnitTests/TestResults || echo "No coverage file found in UnitTests project!"
+          find tests/UnitTests/TestResults -name "coverage.opencover.xml" || echo "No coverage file found!"
 
       - name: Install SonarScanner
         run: |
@@ -51,6 +51,6 @@ jobs:
             -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template \
             -Dsonar.organization=hectorsandovalcordon-qa \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.sources=src \
+            -Dsonar.sources=src,tests/UnitTests \
             -Dsonar.exclusions=**/bin/**,**/obj/** \
             -Dsonar.cs.opencover.reportsPaths=tests/UnitTests/TestResults/**/coverage.opencover.xml
