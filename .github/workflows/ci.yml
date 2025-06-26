@@ -34,12 +34,23 @@ jobs:
           dotnet test --no-build --collect:"XPlat Code Coverage" \
             /p:CoverletOutputFormat=opencover \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml
-          echo "Verifying coverage file..."
-          ls -la ./TestResults
-          cat ./TestResults/coverage.opencover.xml || echo "Coverage file is empty or missing!"
+          echo "Verifying coverage files..."
+          find . -name "coverage.opencover.xml" || echo "No coverage file found!"
 
       - name: Install SonarScanner
         run: |
           curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
           unzip sonar-scanner.zip -d $HOME
-          echo "$HOME/son
+          echo "$HOME/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
+
+      - name: Run SonarScanner
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template \
+            -Dsonar.organization=hectorsandovalcordon-qa \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.sources=src \
+            -Dsonar.exclusions=**/bin/**,**/obj/** \
+            -Dsonar.cs.opencover.reportsPaths=$(find . -name "coverage.opencover.xml" | head -n 1)
