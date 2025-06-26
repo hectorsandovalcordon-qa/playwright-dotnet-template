@@ -108,7 +108,7 @@ jobs:
             -Dsonar.pullrequest.branch=${{ github.head_ref }} \
             -Dsonar.pullrequest.base=${{ github.base_ref }} \
             -Dsonar.sources=src \
-            -Dsonar.exclusions=**/bin/**,**/obj/** \
+            -Dsonar.exclusions=**/bin/**,**/obj/**, .github, .template.config, tests \
             -Dsonar.cs.opencover.reportsPaths=tests/UnitTests/TestResults/**/coverage.cobertura.xml
 
   allure-report:
