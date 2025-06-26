@@ -70,7 +70,7 @@ jobs:
       - name: Verify Coverlet Installation
         run: dotnet list ./tests/UnitTests/UnitTests.csproj package
 
-      - name: Run Unit Tests with Detailed Logs
+      - name: Run Unit Tests with Coverlet Debug Logs
         run: |
           dotnet test ./tests/UnitTests/UnitTests.csproj \
             --configuration Debug \
@@ -78,7 +78,9 @@ jobs:
             /p:CollectCoverage=true \
             /p:CoverletOutput=./TestResults/coverage.opencover.xml \
             /p:CoverletOutputFormat=opencover \
+            /p:CoverletDebug=true \
             /p:Exclude="[*Tests]*"
+
 
       - name: Search for Coverage File
         run: find . -name "coverage.opencover.xml"
