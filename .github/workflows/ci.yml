@@ -1,18 +1,15 @@
-name: CI/CD
-
-env:
-  DOTNET_VERSION: '8.0'
-  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net8.0/allure-results
-  REPORT_DIR: allure-report
-  BASE_HREF: '/playwright-dotnet-template/'
+name: SonarCloud Analysis
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
-    branches: [ main, dev ]
+    branches:
+      - main
 
 jobs:
-  build:
-    name: Build Project
+  sonarcloud:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,56 +19,29 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          dotnet-version: '8.0'
 
-      - name: Restore and Build
+      - name: Install dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --no-restore
+
+      - name: Run tests with coverage
         run: |
-          dotnet restore ./src/playwright-dotnet-template.csproj
-          dotnet build ./src/playwright-dotnet-template.csproj --configuration Debug
+          dotnet test --no-build --collect:"XPlat Code Coverage" \
+            /p:CoverletOutputFormat=opencover \
+            /p:CoverletOutput=./TestResults/coverage.opencover.xml
 
-  unit-tests-and-sonar:
-    name: Run Unit Tests & SonarCloud Analysis
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1.6
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Verify .NET SDK Installation
-        run: dotnet --info
-
-      - name: Install Coverlet Collector
-        run: dotnet add ./tests/UnitTests/UnitTests.csproj package coverlet.collector
-
-      - name: Create TestResults Directory
-        run: mkdir -p ./TestResults
-
-      - name: SonarCloud Scan Begin
+          projectBaseDir: ./src
+          args: >
+            -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template
+            -Dsonar.organization=hectorsandovalcordon-qa
+            -Dsonar.sources=src
+            -Dsonar.exclusions=**/bin/**,**/obj/**
+            -Dsonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin \
-            /k:"hectorsandovalcordon-qa_playwright-dotnet-template" \
-            /o:"hectorsandovalcordon-qa" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-      - name: Run Unit Tests with Coverage
-        run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj \
-            --configuration Debug \
-            /p:CollectCoverage=true \
-            /p:CoverletOutput=./TestResults/coverage.opencover.xml \
-            /p:CoverletOutputFormat=opencover
-
-      - name: SonarCloud Scan End
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
