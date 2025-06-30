@@ -1,159 +1,219 @@
-name: .NET Tests with Allure and SonarCloud
-
-env:
-  DOTNET_VERSION: '8.0'
-  RESULTS_DIR: ./tests/UnitTests/bin/Debug/net8.0/allure-results
-  REPORT_DIR: allure-report
-  BASE_HREF: '/playwright-dotnet-template/'
+name: CI/CD Pipeline - Multi-Driver Support
 
 on:
   pull_request:
-    branches: [ main, dev ]
+    branches: [ "dev", "main" ]
+
+env:
+  DOTNET_VERSION: '8.0'
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build:
-    name: Build Project
+  test:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        driver: [playwright, selenium]
+        browser: [chromium, firefox]
+        include:
+          - driver: playwright
+            browser: webkit
+          - driver: selenium
+            browser: edge
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better analysis
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Install Playwright Browsers (if Playwright)
+      if: matrix.driver == 'playwright'
+      run: |
+        dotnet build
+        pwsh tests/QA.Framework.Tests/bin/Debug/net8.0/playwright.ps1 install
+    
+    - name: Setup Chrome (if Selenium)
+      if: matrix.driver == 'selenium'
+      uses: browser-actions/setup-chrome@latest
+    
+    - name: Setup Firefox (if Selenium)
+      if: matrix.driver == 'selenium' && matrix.browser == 'firefox'
+      uses: browser-actions/setup-firefox@latest
+    
+    - name: Setup Edge (if Selenium)
+      if: matrix.driver == 'selenium' && matrix.browser == 'edge'
+      uses: browser-actions/setup-edge@latest
+    
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v3
+      with:
+        path: ~\sonar\cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    
+    - name: Cache SonarCloud scanner
+      id: cache-sonar-scanner
+      uses: actions/cache@v3
+      with:
+        path: .\.sonar\scanner
+        key: ${{ runner.os }}-sonar-scanner
+        restore-keys: ${{ runner.os }}-sonar-scanner
+    
+    - name: Install SonarCloud scanner
+      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      shell: powershell
+      run: |
+        New-Item -Path .\.sonar\scanner -ItemType Directory
+        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Begin SonarCloud analysis
+      if: matrix.driver == 'playwright' && matrix.browser == 'chromium'
+      shell: powershell
+      run: |
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage/coverage.opencover.xml" /d:sonar.cs.vstest.reportsPaths="TestResults/*.trx"
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Run Unit Tests
+      run: |
+        dotnet test tests/QA.Framework.UnitTests/QA.Framework.UnitTests.csproj \
+          --configuration Release \
+          --no-build \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults \
+          --logger trx \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+    
+    - name: Run Integration Tests
+      run: |
+        dotnet test tests/QA.Framework.Tests/QA.Framework.Tests.csproj \
+          --configuration Release \
+          --no-build \
+          --verbosity normal \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults \
+          --logger trx \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+      env:
+        ASPNETCORE_ENVIRONMENT: Test
+        TestSettings__WebDriver: ${{ matrix.driver }}
+        TestSettings__Browser: ${{ matrix.browser }}
+        TestSettings__Headless: true
+    
+    - name: Merge Coverage Reports
+      if: matrix.driver == 'playwright' && matrix.browser == 'chromium'
+      run: |
+        dotnet tool install -g dotnet-reportgenerator-globaltool
+        reportgenerator -reports:"TestResults/*/coverage.opencover.xml" -targetdir:"coverage" -reporttypes:"OpenCover"
+    
+    - name: End SonarCloud analysis
+      if: matrix.driver == 'playwright' && matrix.browser == 'chromium'
+      shell: powershell
+      run: .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+    
+    - name: Generate Allure Report
+      uses: simple-elf/allure-report-action@master
+      if: always()
+      with:
+        allure_results: |
+          tests/QA.Framework.Tests/bin/Debug/net8.0/allure-results/integration-tests
+          tests/QA.Framework.UnitTests/bin/Debug/net8.0/allure-results/unit-tests
+        allure_report: allure-report-${{ matrix.driver }}-${{ matrix.browser }}
+        gh_pages: allure-history
+        allure_history: allure-history
+        keep_reports: 20
+    
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.driver }}-${{ matrix.browser }}
+        path: |
+          TestResults/
+          allure-report-${{ matrix.driver }}-${{ matrix.browser }}/
+          coverage/
+    
+    - name: Upload Screenshots (if any)
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: screenshots-${{ matrix.driver }}-${{ matrix.browser }}
+        path: |
+          tests/QA.Framework.Tests/screenshots/
+          tests/QA.Framework.Tests/videos/
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Restore and Build
-        run: |
-          dotnet restore ./tests/UnitTests/UnitTests.csproj
-          dotnet build ./tests/UnitTests/UnitTests.csproj --configuration Debug
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: ./tests/UnitTests/bin/
-
-  unit-tests:
-    name: Run Unit Tests
+  deploy-reports:
+    needs: test
     runs-on: ubuntu-latest
-    needs: build
-
+    if: always()
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    
+    - name: Combine Allure Reports
+      run: |
+        mkdir -p combined-allure-report
+        for dir in allure-report-*/; do
+          if [ -d "$dir" ]; then
+            cp -r "$dir"/* combined-allure-report/ 2>/dev/null || true
+          fi
+        done
+    
+    - name: Deploy Combined Report to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: combined-allure-report
+        destination_dir: allure-report
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-          path: ./tests/UnitTests/bin/
-
-      - name: Run Unit Tests and collect Allure results
-        run: |
-          dotnet test ./tests/UnitTests/UnitTests.csproj --configuration Debug \
-            --logger:"console;verbosity=normal" \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
-            /p:CoverletOutput=./tests/UnitTests/TestResults/coverage.cobertura.xml
-
-      - name: Verify Coverage File
-        run: |
-          echo "Checking for coverage file..."
-          find tests/UnitTests/TestResults -name "coverage.cobertura.xml" || echo "Coverage file not found!"
-
-      - name: Upload Allure results
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results
-          path: ${{ env.RESULTS_DIR }}
-
-      - name: Upload Coverage results
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-results
-          path: ./tests/UnitTests/TestResults/coverage.cobertura.xml
-
-  sonarcloud:
-    name: SonarCloud Analysis
+  cross-browser-comparison:
+    needs: test
     runs-on: ubuntu-latest
-    needs: unit-tests
-
+    if: always()
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup Java 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-
-      - name: Install dependencies
-        run: dotnet restore
-
-      - name: Install SonarScanner
-        run: |
-          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner.zip -d $HOME
-          echo "$HOME/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
-
-      - name: Run SonarScanner
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=hectorsandovalcordon-qa_playwright-dotnet-template \
-            -Dsonar.organization=hectorsandovalcordon-qa \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
-            -Dsonar.pullrequest.branch=${{ github.head_ref }} \
-            -Dsonar.pullrequest.base=${{ github.base_ref }} \
-            -Dsonar.sources=src \
-            -Dsonar.exclusions=**/bin/**,**/obj/**,.github/**,.template.config/** \
-            -Dsonar.cs.opencover.reportsPaths=tests/UnitTests/TestResults/coverage.cobertura.xml
-
-  allure-report:
-    name: Generate and Deploy Allure Report
-    runs-on: ubuntu-latest
-    needs: unit-tests
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Allure CLI
-        run: npm install -g allure-commandline --save-dev
-
-      - name: Download Allure Results
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-results
-          path: ${{ env.RESULTS_DIR }}
-
-      - name: Generate Allure Report
-        run: |
-          allure generate $(pwd)/${{ env.RESULTS_DIR }} --clean -o $(pwd)/${{ env.REPORT_DIR }}
-
-      - name: Inject <base href> into report
-        run: |
-          sed -i "s|<head>|<head><base href='${{ env.BASE_HREF }}'>|" $(pwd)/${{ env.REPORT_DIR }}/index.html
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ env.REPORT_DIR }}
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Install Playwright Browsers
+      run: |
+        dotnet build
+        pwsh tests/QA.Framework.Tests/bin/Debug/net8.0/playwright.ps1 install
+    
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@latest
+    
+    - name: Run Cross-Browser Comparison Tests
+      run: |
+        dotnet test tests/QA.Framework.Tests/QA.Framework.Tests.csproj \
+          --filter "TestCategory=comparison" \
+          --configuration Release \
+          --verbosity normal \
+          --logger trx
+      env:
+        ASPNETCORE_ENVIRONMENT: Test
+        TestSettings__Headless: true
+    
+    - name: Upload Comparison Screenshots
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: cross-browser-comparison
+        path: |
+          tests/QA.Framework.Tests/screenshots/compare/

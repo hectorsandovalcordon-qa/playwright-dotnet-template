@@ -1,1 +1,0 @@
-[assembly: TestFramework("Allure.Xunit.AllureTestFramework", "Allure.Xunit")]
