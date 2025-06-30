@@ -1,0 +1,27 @@
+{
+  "allure": {
+    "directory": "allure-results",
+    "links": [
+      {
+        "name": "Jira",
+        "type": "issue",
+        "pattern": "https://jira.company.com/browse/{}"
+      },
+      {
+        "name": "Test Management",
+        "type": "tms",
+        "pattern": "https://testmanagement.company.com/testcase/{}"
+      }
+    ],
+    "categories": [
+      {
+        "name": "Driver Issues",
+        "messageRegex": ".*WebDriver.*^|.*playwright.*^|.*selenium.*"
+      },
+      {
+        "name": "Network Issues",
+        "messageRegex": ".*timeout.*^|.*connection.*^|.*network.*"
+      }
+    ]
+  }
+}

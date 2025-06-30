@@ -1,9 +1,39 @@
-# Visual Studio
-.vs/
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
 
+## Test Results  
+TestResults/
+*.coverage
+*.coveragexml
 
-# Build directories
-bin/
-obj/
+## Allure
+allure-results/
+allure-report/
+allure-history/
 
+## Screenshots and Videos
+screenshots/
+videos/
+traces/
 
+## Logs
+logs/
+*.log
+
+## NuGet
+*.nupkg
+packages/
+
+## IDE
+.vscode/
+.idea/
+*.swp
+
+## OS
+.DS_Store
+Thumbs.db
