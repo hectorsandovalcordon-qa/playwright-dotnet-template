@@ -25,4 +25,8 @@
     <ProjectReference Include="..\..\src\QA.Framework.Core\QA.Framework.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
