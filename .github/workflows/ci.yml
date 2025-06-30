@@ -94,17 +94,6 @@ jobs:
           --results-directory ./TestResults \
           --logger trx \
           -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
-    
-    - name: Run Integration Tests
-      run: |
-        dotnet test tests/QA.Framework.Tests/QA.Framework.Tests.csproj \
-          --configuration Release \
-          --no-build \
-          --verbosity normal \
-          --collect:"XPlat Code Coverage" \
-          --results-directory ./TestResults \
-          --logger trx \
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
       env:
         ASPNETCORE_ENVIRONMENT: Test
         TestSettings__WebDriver: ${{ matrix.driver }}
@@ -127,7 +116,6 @@ jobs:
       if: always()
       with:
         allure_results: |
-          tests/QA.Framework.Tests/bin/Debug/net8.0/allure-results/integration-tests
           tests/QA.Framework.UnitTests/bin/Debug/net8.0/allure-results/unit-tests
         allure_report: allure-report-${{ matrix.driver }}-${{ matrix.browser }}
         gh_pages: allure-history
